@@ -83,6 +83,8 @@
                             <option value="Motociclista">Motociclista</option>
                             <option value="Ciclista">Ciclista</option>
                             <option value="Interno">Interno</option>
+                            <option value="Pedestre">Pedestre</option>
+                            <option value="Gestão">Gestão</option>
                         </select>
                     </div>
                     <button type="submit" class="w-full bg-slate-800 text-white p-3 rounded font-medium hover:bg-slate-700 transition shadow">Salvar Funcionário</button>
@@ -289,7 +291,7 @@
                 
                 let presentes = 0, ausentes = 0;
                 let motivosContagem = { AM: 0, LM: 0, "Serviço externo": 0, Folga: 0, Férias: 0 };
-                let funcoesContagem = { Motorista: 0, Motociclista: 0, Ciclista: 0, Interno: 0 };
+                let funcoesContagem = { Motorista: 0, Motociclista: 0, Ciclista: 0, Interno: 0, Pedestre: 0, Gestão: 0 };
 
                 snapshotPonto.forEach(doc => {
                     const p = doc.data();
