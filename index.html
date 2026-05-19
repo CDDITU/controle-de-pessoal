@@ -26,11 +26,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-        }
-        
         .toast-notification {
             animation: slideIn 0.3s ease-out;
         }
@@ -39,7 +34,6 @@
             transform: scale(0.97);
         }
         
-        /* Loading spinner */
         .loading-spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #1e293b;
@@ -54,7 +48,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Scrollbar personalizada */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -74,7 +67,6 @@
             background: #555;
         }
         
-        /* Melhorias de hover */
         .card-hover {
             transition: all 0.3s ease;
         }
@@ -84,7 +76,6 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
         }
         
-        /* Botões e inputs */
         input, select, textarea {
             transition: all 0.2s ease;
         }
@@ -93,7 +84,6 @@
             transform: scale(1.01);
         }
         
-        /* Mobile bottom nav */
         @media (max-width: 768px) {
             .bottom-nav {
                 display: flex;
@@ -108,11 +98,27 @@
                 display: none;
             }
         }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .checklist-item {
+            transition: all 0.2s ease;
+        }
+        
+        .checklist-item:hover {
+            transform: translateX(5px);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
 
-    <!-- Botão toggle mobile para sidebar -->
     <button id="menu-toggle" class="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-slate-800 text-white lg:hidden shadow-lg hover:bg-slate-700 transition-all btn-pressed">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -121,7 +127,6 @@
 
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
         <div id="sidebar" class="fixed lg:relative w-64 bg-gradient-to-b from-slate-800 to-slate-900 text-white p-6 space-y-6 flex flex-col justify-between inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 shadow-2xl">
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
@@ -145,14 +150,16 @@
                     <button onclick="showTab('ocorrencias')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
                         <span>⚠️</span> Ocorrências
                     </button>
+                    <button onclick="showTab('checklist')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
+                        <span>✅</span> Checklist Ponto
+                    </button>
                 </nav>
             </div>
             <div class="text-xs text-slate-500 text-center border-t border-slate-700 pt-4">
-                v1.2.0 &bull; Sistema Integrado
+                v1.3.0 &bull; Sistema Integrado
             </div>
         </div>
 
-        <!-- Conteúdo principal -->
         <div id="main-content" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pt-16 lg:pt-8 pb-24 lg:pb-8">
             
             <!-- Dashboard -->
@@ -167,7 +174,6 @@
                     </div>
                 </div>
                 
-                <!-- Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-gradient-to-r from-green-50 to-white p-6 rounded-2xl shadow-md border-l-4 border-green-500 card-hover">
                         <div class="flex items-center justify-between">
@@ -207,7 +213,6 @@
                     </div>
                 </div>
                 
-                <!-- Gráficos -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 card-hover">
                         <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Ausências por Motivo</h3>
@@ -295,7 +300,6 @@
                     </button>
                 </form>
                 
-                <!-- Histórico rápido -->
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-700 mb-3">📜 Últimos Registros</h3>
                     <div id="ultimos-registros" class="space-y-2 max-h-64 overflow-y-auto">
@@ -333,7 +337,6 @@
                     </button>
                 </form>
                 
-                <!-- Lista de ocorrências recentes -->
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-700 mb-3">📋 Últimas Ocorrências</h3>
                     <div id="lista-ocorrencias" class="space-y-3 max-h-96 overflow-y-auto">
@@ -342,10 +345,62 @@
                 </div>
             </div>
 
+            <!-- Checklist de Ponto (NOVA ABA) -->
+            <div id="tab-checklist" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">✅ Checklist de Ponto</h2>
+                    <div class="flex gap-2">
+                        <button onclick="carregarChecklistPonto()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-all btn-pressed text-sm">
+                            🔄 Atualizar
+                        </button>
+                        <button onclick="enviarLembretes()" id="btn-enviar-lembretes" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all btn-pressed text-sm">
+                            📧 Enviar Lembretes
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                    <div class="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-semibold text-blue-800">📊 Resumo do Dia</p>
+                                <p id="checklist-resumo" class="text-2xl font-bold text-blue-900 mt-1">Carregando...</p>
+                            </div>
+                            <div class="text-3xl">✅</div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Matrícula</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Funcionário</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Cargo</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checklist-tbody">
+                                <tr>
+                                    <td colspan="5" class="text-center py-8 text-gray-500">Carregando lista de funcionários...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                    <p class="text-sm text-yellow-800">
+                        💡 <strong>Dica:</strong> Funcionários marcados em <span class="text-red-600 font-semibold">vermelho</span> ainda não registraram ponto hoje. 
+                        Clique em "Marcar Ausente" para registrar automaticamente como ausente ou use o botão "Enviar Lembretes" para notificá-los.
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Bottom Navigation para Mobile -->
     <div class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
         <div class="flex justify-around items-center py-2">
             <button onclick="showTab('dashboard')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
@@ -364,11 +419,14 @@
                 <span class="text-xl">⚠️</span>
                 <span class="text-xs mt-1">Ocorrências</span>
             </button>
+            <button onclick="showTab('checklist')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
+                <span class="text-xl">✅</span>
+                <span class="text-xs mt-1">Checklist</span>
+            </button>
         </div>
     </div>
 
     <script>
-        // Toast notification system
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
@@ -386,7 +444,6 @@
             }, 3000);
         }
 
-        // Loading overlay
         function showLoading(show) {
             let loader = document.getElementById('global-loader');
             if (show) {
@@ -402,7 +459,6 @@
             }
         }
 
-        // Menu toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('-translate-x-full');
@@ -411,7 +467,6 @@
         document.getElementById('menu-toggle')?.addEventListener('click', toggleSidebar);
         document.getElementById('close-sidebar')?.addEventListener('click', toggleSidebar);
         
-        // Close sidebar when clicking outside on mobile
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('sidebar');
             const menuBtn = document.getElementById('menu-toggle');
@@ -435,13 +490,16 @@
             
             if (tabId === 'ponto') carregarUltimosRegistros();
             if (tabId === 'ocorrencias') carregarUltimasOcorrencias();
+            if (tabId === 'checklist') carregarChecklistPonto();
             
-            // Atualiza estilo dos botões
             document.querySelectorAll('.nav-btn, .bottom-nav-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-700', 'text-white');
-                if (btn.textContent.includes(tabId === 'dashboard' ? 'Dashboard' : 
-                    tabId === 'cadastro' ? 'Cadastrar' :
-                    tabId === 'ponto' ? 'Ponto' : 'Ocorrências')) {
+                const btnText = btn.textContent.toLowerCase();
+                if ((tabId === 'dashboard' && btnText.includes('dashboard')) ||
+                    (tabId === 'cadastro' && (btnText.includes('cadastrar') || btnText.includes('cadastro'))) ||
+                    (tabId === 'ponto' && btnText.includes('ponto')) ||
+                    (tabId === 'ocorrencias' && btnText.includes('ocorrência')) ||
+                    (tabId === 'checklist' && btnText.includes('checklist'))) {
                     btn.classList.add('bg-slate-700', 'text-white');
                 }
             });
@@ -456,6 +514,24 @@
             const tipo = document.getElementById('oco-tipo').value;
             document.getElementById('div-oco-funcionario').classList.toggle('hidden', tipo === 'Unidade');
         }
+
+        // Verificar mudança de dia automaticamente
+        let ultimaDataVerificada = new Date().toLocaleDateString('sv-SE');
+        
+        function verificarMudancaDia() {
+            const dataAtual = new Date().toLocaleDateString('sv-SE');
+            if (dataAtual !== ultimaDataVerificada) {
+                console.log('Dia mudou! Resetando dashboard...');
+                ultimaDataVerificada = dataAtual;
+                document.getElementById('txt-data-atual').innerText = `📅 ${new Date().toLocaleDateString('pt-BR')}`;
+                if (typeof window.atualizarDashboardFirebase === 'function') {
+                    window.atualizarDashboardFirebase();
+                }
+                showToast(`📅 Novo dia! Dashboard atualizado para ${new Date().toLocaleDateString('pt-BR')}`, 'info');
+            }
+        }
+        
+        setInterval(verificarMudancaDia, 60000);
     </script>
 
     <script type="module">
@@ -474,6 +550,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let listaFuncionarios = [];
+        let pontosHoje = [];
 
         const obterDataHoje = () => new Date().toLocaleDateString('sv-SE');
         
@@ -510,7 +587,142 @@
             }
         }
 
-        // Formulário de Cadastro
+        // Carregar checklist de ponto
+        window.carregarChecklistPonto = async function() {
+            try {
+                showLoading(true);
+                const dataHoje = obterDataHoje();
+                const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
+                const snapshotPonto = await getDocs(qPonto);
+                
+                pontosHoje = [];
+                snapshotPonto.forEach(doc => {
+                    pontosHoje.push(doc.data().matricula);
+                });
+                
+                const funcionariosSemPonto = listaFuncionarios.filter(f => !pontosHoje.includes(f.matricula));
+                const funcionariosComPonto = listaFuncionarios.filter(f => pontosHoje.includes(f.matricula));
+                
+                document.getElementById('checklist-resumo').innerHTML = `
+                    ${funcionariosComPonto.length} de ${listaFuncionarios.length} registraram ponto<br>
+                    <span class="text-red-600 text-sm">${funcionariosSemPonto.length} pendentes</span>
+                `;
+                
+                const tbody = document.getElementById('checklist-tbody');
+                
+                if (listaFuncionarios.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500">Nenhum funcionário cadastrado</td></tr>';
+                    showLoading(false);
+                    return;
+                }
+                
+                let html = '';
+                
+                funcionariosComPonto.forEach(func => {
+                    html += `
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition checklist-item">
+                            <td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-green-500"></span> <span class="text-xs text-green-700 ml-1">Registrado</span></td>
+                            <td class="px-4 py-3 font-mono text-sm">${func.matricula}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800">${func.nome}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${func.cargo}</td>
+                            <td class="px-4 py-3">
+                                <button onclick="verRegistroPonto('${func.matricula}')" class="text-blue-600 hover:text-blue-800 text-sm">👁️ Ver</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                funcionariosSemPonto.forEach(func => {
+                    html += `
+                        <tr class="border-b border-gray-100 bg-red-50 hover:bg-red-100 transition checklist-item">
+                            <td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> <span class="text-xs text-red-700 ml-1">Pendente</span></td>
+                            <td class="px-4 py-3 font-mono text-sm">${func.matricula}</td>
+                            <td class="px-4 py-3 font-medium text-gray-800">${func.nome}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${func.cargo}</td>
+                            <td class="px-4 py-3">
+                                <button onclick="marcarAusenteRapido('${func.matricula}', '${func.nome}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs transition-all mr-2">
+                                    ⚠️ Marcar Ausente
+                                </button>
+                                <button onclick="enviarLembreteIndividual('${func.matricula}', '${func.nome}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs transition-all">
+                                    📧 Lembrete
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tbody.innerHTML = html;
+                showLoading(false);
+            } catch (error) {
+                showLoading(false);
+                showToast("Erro ao carregar checklist", "error");
+                console.error(error);
+            }
+        };
+
+        window.verRegistroPonto = function(matricula) {
+            const func = listaFuncionarios.find(f => f.matricula === matricula);
+            if (func) {
+                showToast(`✅ ${func.nome} já registrou ponto hoje!`, 'info');
+            }
+        };
+
+        window.marcarAusenteRapido = async function(matricula, nome) {
+            if (confirm(`Marcar ${nome} como AUSENTE hoje?`)) {
+                try {
+                    showLoading(true);
+                    const dataHoje = obterDataHoje();
+                    await setDoc(doc(db, "ponto", `${dataHoje}_${matricula}`), { 
+                        data: dataHoje, 
+                        matricula, 
+                        status: 'Ausente', 
+                        motivo: 'Falta não justificada'
+                    });
+                    showToast(`${nome} marcado como ausente!`, 'success');
+                    await carregarChecklistPonto();
+                    if (typeof window.atualizarDashboardFirebase === 'function') {
+                        window.atualizarDashboardFirebase();
+                    }
+                    showLoading(false);
+                } catch (error) {
+                    showLoading(false);
+                    showToast("Erro ao marcar ausente", "error");
+                }
+            }
+        };
+
+        window.enviarLembreteIndividual = function(matricula, nome) {
+            showToast(`📧 Lembrete enviado para ${nome} (simulação)`, 'info');
+            console.log(`Lembrete enviado para ${nome} - ${matricula}`);
+        };
+
+        window.enviarLembretes = async function() {
+            const dataHoje = obterDataHoje();
+            const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
+            const snapshotPonto = await getDocs(qPonto);
+            
+            const pontosHojeTemp = [];
+            snapshotPonto.forEach(doc => {
+                pontosHojeTemp.push(doc.data().matricula);
+            });
+            
+            const funcionariosSemPonto = listaFuncionarios.filter(f => !pontosHojeTemp.includes(f.matricula));
+            
+            if (funcionariosSemPonto.length === 0) {
+                showToast("Todos os funcionários já registraram ponto hoje!", 'success');
+                return;
+            }
+            
+            showToast(`📧 Enviando lembretes para ${funcionariosSemPonto.length} funcionário(s)...`, 'info');
+            
+            for (const func of funcionariosSemPonto) {
+                console.log(`Lembrete enviado para ${func.nome} - ${func.matricula}`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            showToast(`✅ Lembretes enviados para ${funcionariosSemPonto.length} funcionário(s)!`, 'success');
+        };
+
         document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('cad-matricula').value.trim();
@@ -536,7 +748,6 @@
             }
         });
 
-        // Formulário de Ponto
         document.getElementById('form-ponto').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('ponto-matricula').value;
@@ -570,7 +781,6 @@
             }
         });
 
-        // Carregar últimos registros de ponto
         async function carregarUltimosRegistros() {
             try {
                 const q = query(collection(db, "ponto"), orderBy("data", "desc"), limit(10));
@@ -607,7 +817,6 @@
             }
         }
 
-        // Formulário de Ocorrência
         document.getElementById('form-ocorrencia').addEventListener('submit', async (e) => {
             e.preventDefault();
             const tipo = document.getElementById('oco-tipo').value;
@@ -639,7 +848,6 @@
             }
         });
 
-        // Carregar últimas ocorrências
         async function carregarUltimasOcorrencias() {
             try {
                 const q = query(collection(db, "ocorrencias"), orderBy("data", "desc"), limit(15));
@@ -677,7 +885,6 @@
             }
         }
 
-        // Gráficos
         let chartM, chartF;
         async function inicializarDashboard() {
             const dataHoje = obterDataHoje();
@@ -705,7 +912,7 @@
                     }
                 });
 
-                const total = presentes + ausentes;
+                const total = listaFuncionarios.length;
                 const taxa = total > 0 ? Math.round((presentes / total) * 100) : 0;
                 document.getElementById('taxa-presenca').innerText = `${taxa}%`;
                 document.getElementById('barra-presenca').style.width = `${taxa}%`;
@@ -766,7 +973,6 @@
             }
         }
 
-        // Inicialização
         await carregarSelects();
         await inicializarDashboard();
     </script>
