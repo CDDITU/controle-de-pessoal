@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Pessoal & Ocorrências</title>
-    <!-- Tailwind CSS para um design moderno e limpo -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para geração de gráficos no Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
-    <!-- Container Principal com Menu Lateral -->
     <div class="flex h-screen overflow-hidden">
         
-        <!-- MENU LATERAL -->
         <div class="w-64 bg-slate-800 text-white p-6 space-y-6 flex flex-col justify-between">
             <div class="space-y-6">
                 <h1 class="text-xl font-bold border-b border-slate-700 pb-4 tracking-wide">Gestão de Pessoal</h1>
@@ -26,21 +22,18 @@
                 </nav>
             </div>
             <div class="text-xs text-slate-500 text-center border-t border-slate-700 pt-4">
-                v1.0.0 &bull; Conectado ao Firebase
+                v1.1.0 &bull; GitHub Pages
             </div>
         </div>
 
-        <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
         <div class="flex-1 overflow-y-auto p-8">
             
-            <!-- ABA: DASHBOARD -->
             <div id="tab-dashboard" class="tab-content space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-800">Dashboard Diário</h2>
                     <span id="txt-data-atual" class="text-sm font-semibold text-slate-500 bg-white px-3 py-1 rounded shadow-sm border"></span>
                 </div>
                 
-                <!-- Cards de Resumo -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
                         <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Presentes Hoje</p>
@@ -56,7 +49,6 @@
                     </div>
                 </div>
                 
-                <!-- Gráficos Gerenciais -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                     <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-700 mb-4">Ausências por Motivo</h3>
@@ -73,7 +65,6 @@
                 </div>
             </div>
 
-            <!-- ABA: CADASTRO -->
             <div id="tab-cadastro" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Cadastrar Novo Funcionário</h2>
                 <form id="form-cadastro" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-lg space-y-4">
@@ -98,15 +89,13 @@
                 </form>
             </div>
 
-            <!-- ABA: PONTO -->
             <div id="tab-ponto" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Registro de Presença e Ausência</h2>
                 <form id="form-ponto" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-lg space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Selecione o Funcionário</label>
                         <select id="ponto-matricula" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-2 focus:ring-slate-500 focus:outline-none">
-                            <!-- Injetado dinamicamente via JS -->
-                        </select>
+                            </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Status de Presença</label>
@@ -129,7 +118,6 @@
                 </form>
             </div>
 
-            <!-- ABA: OCORRÊNCIAS -->
             <div id="tab-ocorrencias" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Registro de Ocorrências</h2>
                 <form id="form-ocorrencia" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-lg space-y-4">
@@ -143,12 +131,11 @@
                     <div id="div-oco-funcionario">
                         <label class="block text-sm font-semibold text-gray-700">Selecione o Funcionário</label>
                         <select id="oco-matricula" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-2 focus:ring-slate-500 focus:outline-none">
-                            <!-- Injetado dinamicamente via JS -->
-                        </select>
+                            </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Descrição do Problema / Conduta</label>
-                        <textarea id="oco-descricao" required rows="3" placeholder="Detalhes da ocorrência (Ex: Atraso injustificado, falha no veículo operacional...)" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-2 focus:ring-slate-500 focus:outline-none"></textarea>
+                        <textarea id="oco-descricao" required rows="3" placeholder="Detalhes da ocorrência..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2.5 border focus:ring-2 focus:ring-slate-500 focus:outline-none"></textarea>
                     </div>
                     <button type="submit" class="w-full bg-slate-800 text-white p-3 rounded font-medium hover:bg-slate-700 transition shadow">Registrar Ocorrência</button>
                 </form>
@@ -157,13 +144,40 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE INTEGRADO -->
+    <script>
+        function showTab(tabId) {
+            // Oculta todas as telas
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(function(el) { el.classList.add('hidden'); });
+            
+            // Mostra a tela selecionada
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+            
+            // Atualiza os gráficos se for a aba do dashboard
+            if (tabId === 'dashboard' && typeof window.atualizarDashboardFirebase === 'function') {
+                window.atualizarDashboardFirebase();
+            }
+        }
+
+        function toggleMotivo() {
+            var status = document.getElementById('ponto-status').value;
+            document.getElementById('div-motivo').classList.toggle('hidden', status !== 'Ausente');
+        }
+
+        function toggleOcorrenciaTipo() {
+            var tipo = document.getElementById('oco-tipo').value;
+            document.getElementById('div-oco-funcionario').classList.toggle('hidden', tipo === 'Unidade');
+        }
+    </script>
+
     <script type="module">
-        // Importações diretas do CDN do Firebase SDK v10
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, setDoc, doc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Suas credenciais oficiais fornecidas
+        // Suas Configurações Fornecidas
         const firebaseConfig = {
             apiKey: "AIzaSyAxdNT93FsZlW_w0CiuH2XTYYkCJfe-McU",
             authDomain: "controle-de-pessoal-dab62.firebaseapp.com",
@@ -173,41 +187,19 @@
             appId: "1:144385976152:web:3638be237a1187fef2e72d"
         };
 
-        // Inicializando as instâncias
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // Cache local de colaboradores para performance
         let listaFuncionarios = [];
 
-        // Define a data atual formatada na interface do Dashboard
         const obterDataHoje = () => {
-            const hoje = new Date();
-            // Ajuste simples para o fuso local brasileiro AAAA-MM-DD
-            return hoje.toLocaleDateString('sv-SE');
+            return new Date().toLocaleDateString('sv-SE'); // Retorna AAAA-MM-DD local
         };
         
         document.getElementById('txt-data-atual').innerText = `Data Base: ${obterDataHoje().split('-').reverse().join('/')}`;
 
-        // Gerenciador Global de Abas (Exposto no escopo window para os botões do HTML)
-        window.showTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            if(tabId === 'dashboard') inicializarDashboard();
-        };
+        // Vincula a atualização do dashboard à janela global do navegador
+        window.atualizarDashboardFirebase = inicializarDashboard;
 
-        // Exibe/Oculta campos condicionais dos formulários
-        window.toggleMotivo = function() {
-            const status = document.getElementById('ponto-status').value;
-            document.getElementById('div-motivo').classList.toggle('hidden', status !== 'Ausente');
-        };
-
-        window.toggleOcorrenciaTipo = function() {
-            const tipo = document.getElementById('oco-tipo').value;
-            document.getElementById('div-oco-funcionario').classList.toggle('hidden', tipo === 'Unidade');
-        };
-
-        // Carrega a listagem de funcionários nos elementos <select>
         async function carregarSelects() {
             try {
                 const querySnapshot = await getDocs(collection(db, "funcionarios"));
@@ -215,23 +207,24 @@
                 const selectPonto = document.getElementById('ponto-matricula');
                 const selectOco = document.getElementById('oco-matricula');
                 
+                if(!selectPonto || !selectOco) return;
+
                 selectPonto.innerHTML = '<option value="">-- Selecione o Funcionário --</option>';
                 selectOco.innerHTML = '<option value="">-- Selecione o Funcionário --</option>';
 
                 querySnapshot.forEach((doc) => {
                     const func = doc.data();
                     listaFuncionarios.push(func);
-                    
                     const option = `<option value="${func.matricula}">${func.nome} [${func.matricula}] - ${func.cargo}</option>`;
                     selectPonto.innerHTML += option;
                     selectOco.innerHTML += option;
                 });
             } catch (error) {
-                console.error("Erro ao sincronizar lista de funcionários: ", error);
+                console.error("Erro ao carregar selects: ", error);
             }
         }
 
-        // SALVAR NOVO FUNCIONÁRIO
+        // FORM CADASTRO
         document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('cad-matricula').value.trim();
@@ -239,18 +232,17 @@
             const cargo = document.getElementById('cad-cargo').value;
 
             try {
-                // Utiliza a matrícula inserida manualmente como chave identificadora única do documento
                 await setDoc(doc(db, "funcionarios", matricula), { matricula, nome, cargo });
                 alert("Funcionário cadastrado com sucesso!");
                 document.getElementById('form-cadastro').reset();
                 await carregarSelects();
             } catch (error) {
-                alert("Erro ao salvar funcionário. Verifique as regras do Firestore.");
-                console.error("Erro no cadastro: ", error);
+                alert("Erro ao salvar dados no Firebase. Verifique suas regras do Firestore Database.");
+                console.error(error);
             }
         });
 
-        // REGISTRAR PONTO DIÁRIO
+        // FORM PONTO
         document.getElementById('form-ponto').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('ponto-matricula').value;
@@ -258,25 +250,19 @@
             const motivo = status === 'Ausente' ? document.getElementById('ponto-motivo').value : '';
             const dataHoje = obterDataHoje();
 
-            if (!matricula) return alert("Selecione um funcionário válido!");
+            if (!matricula) return alert("Selecione um funcionário!");
 
             try {
-                // Chave única composta por Data_Matrícula garante que se o usuário registrar novamente no mesmo dia, o dado apenas atualiza.
-                await setDoc(doc(db, "ponto", `${dataHoje}_${matricula}`), {
-                    data: dataHoje,
-                    matricula,
-                    status,
-                    motivo
-                });
-                alert("Ponto operacional armazenado!");
+                await setDoc(doc(db, "ponto", `${dataHoje}_${matricula}`), { data: dataHoje, matricula, status, motivo });
+                alert("Ponto gravado!");
                 document.getElementById('form-ponto').reset();
-                window.toggleMotivo();
+                toggleMotivo();
             } catch (error) {
-                console.error("Erro ao registrar ponto: ", error);
+                console.error(error);
             }
         });
 
-        // SALVAR OCORRÊNCIA
+        // FORM OCORRÊNCIA
         document.getElementById('form-ocorrencia').addEventListener('submit', async (e) => {
             e.preventDefault();
             const tipo = document.getElementById('oco-tipo').value;
@@ -284,35 +270,24 @@
             const descricao = document.getElementById('oco-descricao').value.trim();
             const dataHoje = obterDataHoje();
 
-            if (tipo === 'Individual' && !matricula) return alert("Selecione um funcionário para ocorrência individual!");
-
             try {
-                await addDoc(collection(db, "ocorrencias"), {
-                    data: dataHoje,
-                    tipo,
-                    matricula,
-                    descricao
-                });
-                alert("Ocorrência registrada no sistema!");
+                await addDoc(collection(db, "ocorrencias"), { data: dataHoje, tipo, matricula, descricao });
+                alert("Ocorrência registrada!");
                 document.getElementById('form-ocorrencia').reset();
-            </div> catch (error) {
-                console.error("Erro no registro de ocorrência: ", error);
+            } catch (error) {
+                console.error(error);
             }
         });
 
-        // ESTRUTURAÇÃO DO GRÁFICO E INDICADORES DO DASHBOARD
-        let chartM, chartF; // Referências globais dos objetos Chart
-
+        // GRAFICOS
+        let chartM, chartF;
         async function inicializarDashboard() {
             const dataHoje = obterDataHoje();
-            
             try {
-                // Busca pontos referentes ao dia atual
                 const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
                 const snapshotPonto = await getDocs(qPonto);
                 
-                let presentes = 0;
-                let ausentes = 0;
+                let presentes = 0, ausentes = 0;
                 let motivosContagem = { AM: 0, LM: 0, "Serviço externo": 0, Folga: 0, Férias: 0 };
                 let funcoesContagem = { Motorista: 0, Motociclista: 0, Ciclista: 0, Interno: 0 };
 
@@ -325,66 +300,50 @@
                         if (motivosContagem[p.motivo] !== undefined) motivosContagem[p.motivo]++;
                     }
 
-                    // Cruza a matrícula do ponto com a função do funcionário cadastrado no cache local
                     const dadosFuncionario = listaFuncionarios.find(f => f.matricula === p.matricula);
                     if (dadosFuncionario && p.status === 'Presente') {
-                        if (funcoesContagem[dadosFuncionario.cargo] !== undefined) {
-                            funcoesContagem[dadosFuncionario.cargo]++;
-                        }
+                        if (funcoesContagem[dadosFuncionario.cargo] !== undefined) funcoesContagem[dadosFuncionario.cargo]++;
                     }
                 });
 
-                // Atualização dos Cards Superiores
                 document.getElementById('dash-presentes').innerText = presentes;
                 document.getElementById('dash-ausentes').innerText = ausentes;
 
-                // Consulta a quantidade geral de ocorrências inseridas
                 const snapshotOco = await getDocs(collection(db, "ocorrencias"));
                 document.getElementById('dash-ocorrencias').innerText = snapshotOco.size;
 
-                // Destrói as instâncias anteriores dos gráficos antes de renderizar os novos (evita falhas visuais do Chart.js)
                 if (chartM) chartM.destroy();
                 if (chartF) chartF.destroy();
 
-                // 1. Gráfico de Rosca/Pizza para Motivos de Ausência
-                chartM = new Chart(document.getElementById('chartMotivos'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(motivosContagem),
-                        datasets: [{
-                            data: Object.values(motivosContagem),
-                            backgroundColor: ['#ef4444', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6'],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                });
+                const ctxMotivos = document.getElementById('chartMotivos');
+                if(ctxMotivos) {
+                    chartM = new Chart(ctxMotivos, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(motivosContagem),
+                            datasets: [{ data: Object.values(motivosContagem), backgroundColor: ['#ef4444', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6'] }]
+                        },
+                        options: { responsive: true }
+                    });
+                }
 
-                // 2. Gráfico de Barras para Efetivo Presente por Função
-                chartF = new Chart(document.getElementById('chartFuncoes'), {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(funcoesContagem),
-                        datasets: [{
-                            label: 'Operacionais Ativos Hoje',
-                            data: Object.values(funcoesContagem),
-                            backgroundColor: '#334155',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-
+                const ctxFuncoes = document.getElementById('chartFuncoes');
+                if(ctxFuncoes) {
+                    chartF = new Chart(ctxFuncoes, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(funcoesContagem),
+                            datasets: [{ data: Object.values(funcoesContagem), backgroundColor: '#334155' }]
+                        },
+                        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+                    });
+                }
             } catch (error) {
-                console.error("Falha ao computar dados do Dashboard: ", error);
+                console.error(error);
             }
         }
 
-        // Fluxo Inicializador da Página
+        // Executa ao carregar
         carregarSelects().then(() => inicializarDashboard());
     </script>
 </body>
