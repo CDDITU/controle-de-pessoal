@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Controle de Pessoal & Ocorrências</title>
+    <title>Sistema de Gestão de Pessoal - Distritos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
+        * { font-family: 'Inter', sans-serif; }
         
-        .tab-content {
-            animation: fadeIn 0.3s ease-out;
-        }
+        .tab-content { animation: fadeIn 0.3s ease-out; }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -26,13 +22,8 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
-        .toast-notification {
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        .btn-pressed:active {
-            transform: scale(0.97);
-        }
+        .toast-notification { animation: slideIn 0.3s ease-out; }
+        .btn-pressed:active { transform: scale(0.97); }
         
         .loading-spinner {
             border: 3px solid #f3f3f3;
@@ -48,72 +39,33 @@
             100% { transform: rotate(360deg); }
         }
         
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
         
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-        }
-        
-        input, select, textarea {
-            transition: all 0.2s ease;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            transform: scale(1.01);
-        }
+        input, select, textarea { transition: all 0.2s ease; }
+        input:focus, select:focus, textarea:focus { transform: scale(1.01); }
         
         @media (max-width: 768px) {
-            .bottom-nav {
-                display: flex;
-            }
-            .desktop-nav {
-                display: none;
-            }
+            .bottom-nav { display: flex; }
+            .desktop-nav { display: none; }
+        }
+        @media (min-width: 769px) { .bottom-nav { display: none; } }
+        
+        .checklist-item { transition: all 0.2s ease; }
+        .checklist-item:hover { transform: translateX(5px); }
+        
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
         }
         
-        @media (min-width: 769px) {
-            .bottom-nav {
-                display: none;
-            }
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .checklist-item {
-            transition: all 0.2s ease;
-        }
-        
-        .checklist-item:hover {
-            transform: translateX(5px);
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-20px); }
         }
     </style>
 </head>
@@ -127,7 +79,7 @@
 
     <div class="flex h-screen overflow-hidden">
         
-        <div id="sidebar" class="fixed lg:relative w-64 bg-gradient-to-b from-slate-800 to-slate-900 text-white p-6 space-y-6 flex flex-col justify-between inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 shadow-2xl">
+        <div id="sidebar" class="fixed lg:relative w-72 bg-gradient-to-b from-slate-800 to-slate-900 text-white p-6 space-y-6 flex flex-col justify-between inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 shadow-2xl overflow-y-auto">
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
                     <h1 class="text-xl font-bold tracking-wide">📋 Gestão de Pessoal</h1>
@@ -138,25 +90,34 @@
                     </button>
                 </div>
                 <nav class="space-y-2">
-                    <button onclick="showTab('dashboard')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
+                    <button onclick="showTab('dashboard')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
                         <span>📊</span> Dashboard
                     </button>
-                    <button onclick="showTab('cadastro')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
+                    <button onclick="showTab('cadastro')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
                         <span>👤</span> Cadastrar Funcionário
                     </button>
-                    <button onclick="showTab('ponto')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
+                    <button onclick="showTab('ponto')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
                         <span>📝</span> Registro de Ponto
                     </button>
-                    <button onclick="showTab('ocorrencias')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
-                        <span>⚠️</span> Ocorrências
+                    <button onclick="showTab('alocacao')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
+                        <span>🗺️</span> Alocar por Distrito
                     </button>
-                    <button onclick="showTab('checklist')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3 hover:translate-x-1">
+                    <button onclick="showTab('historico')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
+                        <span>📜</span> Histórico
+                    </button>
+                    <button onclick="showTab('relatorios')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
+                        <span>📈</span> Relatórios
+                    </button>
+                    <button onclick="showTab('checklist')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
                         <span>✅</span> Checklist Ponto
+                    </button>
+                    <button onclick="showTab('ocorrencias')" class="nav-btn w-full text-left py-2.5 px-4 rounded-xl hover:bg-slate-700 transition-all font-medium flex items-center gap-3">
+                        <span>⚠️</span> Ocorrências
                     </button>
                 </nav>
             </div>
             <div class="text-xs text-slate-500 text-center border-t border-slate-700 pt-4">
-                v1.3.0 &bull; Sistema Integrado
+                v2.0.0 &bull; Sistema Integrado de Distritos
             </div>
         </div>
 
@@ -193,37 +154,37 @@
                             <div class="text-4xl opacity-80">❌</div>
                         </div>
                     </div>
-                    <div class="bg-gradient-to-r from-amber-50 to-white p-6 rounded-2xl shadow-md border-l-4 border-amber-500 card-hover">
+                    <div class="bg-gradient-to-r from-purple-50 to-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500 card-hover">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Total Ocorrências</p>
-                                <p id="dash-ocorrencias" class="text-4xl font-bold text-gray-800 mt-1">0</p>
+                                <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Distritos Especiais</p>
+                                <p id="dash-especiais" class="text-4xl font-bold text-gray-800 mt-1">0</p>
                             </div>
-                            <div class="text-4xl opacity-80">⚠️</div>
+                            <div class="text-4xl opacity-80">⭐</div>
                         </div>
                     </div>
                     <div class="bg-gradient-to-r from-blue-50 to-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500 card-hover">
-                        <div>
-                            <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Taxa de Presença</p>
-                            <p id="taxa-presenca" class="text-4xl font-bold text-gray-800 mt-1">0%</p>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
-                            <div id="barra-presenca" class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider">Distritos Postais</p>
+                                <p id="dash-postais" class="text-4xl font-bold text-gray-800 mt-1">0</p>
+                            </div>
+                            <div class="text-4xl opacity-80">📮</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 card-hover">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Ausências por Motivo</h3>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Alocação por Tipo de Distrito</h3>
                         <div class="relative max-h-64 flex justify-center">
-                            <canvas id="chartMotivos"></canvas>
+                            <canvas id="chartDistritos"></canvas>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 card-hover">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-4">👥 Presentes por Função</h3>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">👥 Equipe Alocada por Função</h3>
                         <div class="relative max-h-64">
-                            <canvas id="chartFuncoes"></canvas>
+                            <canvas id="chartFuncoesAlocacao"></canvas>
                         </div>
                     </div>
                 </div>
@@ -261,9 +222,18 @@
                 </form>
             </div>
 
-            <!-- Ponto -->
+            <!-- Ponto com remoção automática da lista -->
             <div id="tab-ponto" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Registro de Presença e Ausência</h2>
+                
+                <!-- Lista de funcionários que ainda NÃO bateram ponto -->
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl shadow-md border border-yellow-200">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">⏰ Funcionários que ainda não bateram ponto hoje</h3>
+                    <div id="lista-pendentes-ponto" class="space-y-2 max-h-64 overflow-y-auto">
+                        <p class="text-gray-500 text-center py-4">Carregando...</p>
+                    </div>
+                </div>
+                
                 <form id="form-ponto" class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl space-y-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Selecione o Funcionário</label>
@@ -299,64 +269,159 @@
                         📌 Registrar Ponto
                     </button>
                 </form>
+            </div>
+
+            <!-- Alocação por Distrito -->
+            <div id="tab-alocacao" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">🗺️ Alocar Funcionários por Distrito</h2>
                 
-                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3">📜 Últimos Registros</h3>
-                    <div id="ultimos-registros" class="space-y-2 max-h-64 overflow-y-auto">
-                        <p class="text-gray-500 text-center py-4">Carregando...</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Formulário de Alocação -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Nova Alocação</h3>
+                        <form id="form-alocacao" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Funcionário</label>
+                                <select id="aloc-funcionario" required class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                                    <option value="">Selecione</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Distrito</label>
+                                <select id="aloc-tipo" onchange="carregarDistritos()" class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                                    <option value="Especial">⭐ Distrito Especial (18)</option>
+                                    <option value="Postal">📮 Distrito Postal (24)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Distrito</label>
+                                <select id="aloc-distrito" required class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                                    <option value="">Selecione o tipo primeiro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Data da Alocação</label>
+                                <input type="date" id="aloc-data" required class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Turno</label>
+                                <select id="aloc-turno" class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                                    <option value="Manhã">🌅 Manhã (08-12h)</option>
+                                    <option value="Tarde">☀️ Tarde (13-17h)</option>
+                                    <option value="Integral">🌙 Integral (08-17h)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all btn-pressed">
+                                ✅ Alocar Funcionário
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Alocações do Dia -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-700">📋 Alocações de Hoje</h3>
+                            <button onclick="carregarAlocacoesHoje()" class="text-blue-600 hover:text-blue-800 text-sm">🔄 Atualizar</button>
+                        </div>
+                        <div id="alocacoes-hoje" class="space-y-3 max-h-96 overflow-y-auto">
+                            <p class="text-gray-500 text-center py-4">Carregando...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumo por Tipo de Distrito -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">⭐ Distritos Especiais - Cobertura</h3>
+                        <div id="resumo-especiais" class="space-y-2 max-h-64 overflow-y-auto">
+                            <p class="text-gray-500 text-center py-4">Carregando...</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">📮 Distritos Postais - Cobertura</h3>
+                        <div id="resumo-postais" class="space-y-2 max-h-64 overflow-y-auto">
+                            <p class="text-gray-500 text-center py-4">Carregando...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Ocorrências -->
-            <div id="tab-ocorrencias" class="tab-content hidden space-y-6">
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Registro de Ocorrências</h2>
-                <form id="form-ocorrencia" class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl space-y-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Abrangência da Ocorrência</label>
-                        <select id="oco-tipo" onchange="toggleOcorrenciaTipo()" 
-                                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 border focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all">
-                            <option value="Individual">👤 Individual (Por Funcionário)</option>
-                            <option value="Unidade">🏢 Geral da Unidade / Setor</option>
-                        </select>
-                    </div>
-                    <div id="div-oco-funcionario">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Selecione o Funcionário</label>
-                        <select id="oco-matricula" 
-                                class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 border focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all">
-                            <option value="">-- Selecione o Funcionário --</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição do Problema / Conduta</label>
-                        <textarea id="oco-descricao" required rows="3" placeholder="Detalhes da ocorrência..." 
-                                  class="mt-1 block w-full rounded-xl border-gray-300 shadow-sm p-3 border focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white p-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-md btn-pressed">
-                        ⚠️ Registrar Ocorrência
-                    </button>
-                </form>
+            <!-- Histórico por Funcionário -->
+            <div id="tab-historico" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">📜 Histórico Completo</h2>
                 
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3">📋 Últimas Ocorrências</h3>
-                    <div id="lista-ocorrencias" class="space-y-3 max-h-96 overflow-y-auto">
-                        <p class="text-gray-500 text-center py-4">Carregando...</p>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Filtrar por Funcionário</h3>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <select id="historico-funcionario" class="flex-1 rounded-xl border-gray-300 shadow-sm p-3 border">
+                            <option value="">Todos os Funcionários</option>
+                        </select>
+                        <select id="historico-tipo" class="w-48 rounded-xl border-gray-300 shadow-sm p-3 border">
+                            <option value="tudo">Tudo</option>
+                            <option value="ponto">📝 Ponto</option>
+                            <option value="alocacao">🗺️ Alocações</option>
+                            <option value="ocorrencia">⚠️ Ocorrências</option>
+                        </select>
+                        <button onclick="carregarHistoricoCompleto()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-slate-700 transition-all btn-pressed">
+                            🔍 Buscar
+                        </button>
+                    </div>
+                    
+                    <div id="historico-resultados" class="space-y-4 max-h-96 overflow-y-auto">
+                        <p class="text-gray-500 text-center py-8">Selecione um funcionário para visualizar o histórico</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Checklist de Ponto (NOVA ABA) -->
+            <!-- Relatórios Gerenciais -->
+            <div id="tab-relatorios" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">📈 Relatórios Gerenciais</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Relatório de Alocação por Semana -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">📅 Alocações por Dia da Semana</h3>
+                        <div class="relative h-64">
+                            <canvas id="chartAlocacaoSemana"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Relatório por Função -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">👥 Alocações por Função</h3>
+                        <div class="relative h-64">
+                            <canvas id="chartAlocacaoFuncao"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Cobertura de Distritos -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">📍 Cobertura de Distritos (Últimos 30 dias)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-amber-700 mb-2">⭐ Distritos Especiais (18)</h4>
+                                <div id="relatorio-especiais" class="space-y-1 max-h-64 overflow-y-auto text-sm">
+                                    <p>Carregando...</p>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-blue-700 mb-2">📮 Distritos Postais (24)</h4>
+                                <div id="relatorio-postais" class="space-y-1 max-h-64 overflow-y-auto text-sm">
+                                    <p>Carregando...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist Ponto -->
             <div id="tab-checklist" class="tab-content hidden space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h2 class="text-2xl md:text-3xl font-bold text-gray-800">✅ Checklist de Ponto</h2>
-                    <div class="flex gap-2">
-                        <button onclick="carregarChecklistPonto()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-all btn-pressed text-sm">
-                            🔄 Atualizar
-                        </button>
-                        <button onclick="enviarLembretes()" id="btn-enviar-lembretes" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-all btn-pressed text-sm">
-                            📧 Enviar Lembretes
-                        </button>
-                    </div>
+                    <button onclick="carregarChecklistPonto()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-xl transition-all btn-pressed">
+                        🔄 Atualizar
+                    </button>
                 </div>
                 
                 <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
@@ -382,61 +447,81 @@
                                 </tr>
                             </thead>
                             <tbody id="checklist-tbody">
-                                <tr>
-                                    <td colspan="5" class="text-center py-8 text-gray-500">Carregando lista de funcionários...</td>
-                                </tr>
+                                <tr><td colspan="5" class="text-center py-8 text-gray-500">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <!-- Ocorrências -->
+            <div id="tab-ocorrencias" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800">⚠️ Registro de Ocorrências</h2>
+                <form id="form-ocorrencia" class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-200 max-w-2xl space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Abrangência</label>
+                        <select id="oco-tipo" onchange="toggleOcorrenciaTipo()" class="w-full rounded-xl border-gray-300 shadow-sm p-3 border">
+                            <option value="Individual">👤 Individual</option>
+                            <option value="Unidade">🏢 Geral da Unidade</option>
+                        </select>
+                    </div>
+                    <div id="div-oco-funcionario">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Funcionário</label>
+                        <select id="oco-matricula" class="w-full rounded-xl border-gray-300 shadow-sm p-3 border"></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                        <textarea id="oco-descricao" required rows="3" class="w-full rounded-xl border-gray-300 shadow-sm p-3 border"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-red-700 text-white p-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all btn-pressed">
+                        ⚠️ Registrar Ocorrência
+                    </button>
+                </form>
                 
-                <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
-                    <p class="text-sm text-yellow-800">
-                        💡 <strong>Dica:</strong> Funcionários marcados em <span class="text-red-600 font-semibold">vermelho</span> ainda não registraram ponto hoje. 
-                        Clique em "Marcar Ausente" para registrar automaticamente como ausente ou use o botão "Enviar Lembretes" para notificá-los.
-                    </p>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">📋 Últimas Ocorrências</h3>
+                    <div id="lista-ocorrencias" class="space-y-3 max-h-96 overflow-y-auto">
+                        <p class="text-gray-500 text-center py-4">Carregando...</p>
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
 
+    <!-- Bottom Navigation -->
     <div class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
-        <div class="flex justify-around items-center py-2">
-            <button onclick="showTab('dashboard')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
+        <div class="flex justify-around items-center py-2 overflow-x-auto">
+            <button onclick="showTab('dashboard')" class="bottom-nav-btn flex flex-col items-center p-2 min-w-[70px]">
                 <span class="text-xl">📊</span>
                 <span class="text-xs mt-1">Dashboard</span>
             </button>
-            <button onclick="showTab('cadastro')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
-                <span class="text-xl">👤</span>
-                <span class="text-xs mt-1">Cadastrar</span>
-            </button>
-            <button onclick="showTab('ponto')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
+            <button onclick="showTab('ponto')" class="bottom-nav-btn flex flex-col items-center p-2 min-w-[70px]">
                 <span class="text-xl">📝</span>
                 <span class="text-xs mt-1">Ponto</span>
             </button>
-            <button onclick="showTab('ocorrencias')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
-                <span class="text-xl">⚠️</span>
-                <span class="text-xs mt-1">Ocorrências</span>
+            <button onclick="showTab('alocacao')" class="bottom-nav-btn flex flex-col items-center p-2 min-w-[70px]">
+                <span class="text-xl">🗺️</span>
+                <span class="text-xs mt-1">Alocar</span>
             </button>
-            <button onclick="showTab('checklist')" class="bottom-nav-btn flex flex-col items-center p-2 rounded-xl transition-all">
-                <span class="text-xl">✅</span>
-                <span class="text-xs mt-1">Checklist</span>
+            <button onclick="showTab('historico')" class="bottom-nav-btn flex flex-col items-center p-2 min-w-[70px]">
+                <span class="text-xl">📜</span>
+                <span class="text-xs mt-1">Histórico</span>
+            </button>
+            <button onclick="showTab('relatorios')" class="bottom-nav-btn flex flex-col items-center p-2 min-w-[70px]">
+                <span class="text-xl">📈</span>
+                <span class="text-xs mt-1">Relatórios</span>
             </button>
         </div>
     </div>
 
     <script>
+        // Funções utilitárias
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
             toast.className = `fixed bottom-20 lg:bottom-4 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-6 py-3 rounded-xl shadow-2xl z-50 text-center font-medium toast-notification`;
-            toast.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
-                    <span>${message}</span>
-                </div>
-            `;
+            toast.innerHTML = `<div class="flex items-center gap-3"><span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span><span>${message}</span></div>`;
             document.body.appendChild(toast);
             setTimeout(() => {
                 toast.style.animation = 'slideIn 0.3s ease-out reverse';
@@ -454,55 +539,31 @@
                     loader.innerHTML = '<div class="loading-spinner"></div>';
                     document.body.appendChild(loader);
                 }
-            } else if (loader) {
-                loader.remove();
-            }
+            } else if (loader) loader.remove();
         }
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         }
 
         document.getElementById('menu-toggle')?.addEventListener('click', toggleSidebar);
         document.getElementById('close-sidebar')?.addEventListener('click', toggleSidebar);
-        
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.getElementById('menu-toggle');
-            if (window.innerWidth < 1024 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
-                if (!sidebar.contains(e.target) && !menuBtn?.contains(e.target)) {
-                    sidebar.classList.add('-translate-x-full');
-                }
-            }
-        });
 
         function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(el => el.classList.add('hidden'));
-            
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const targetTab = document.getElementById('tab-' + tabId);
             if (targetTab) targetTab.classList.remove('hidden');
             
-            if (tabId === 'dashboard' && typeof window.atualizarDashboardFirebase === 'function') {
-                window.atualizarDashboardFirebase();
-            }
-            
-            if (tabId === 'ponto') carregarUltimosRegistros();
-            if (tabId === 'ocorrencias') carregarUltimasOcorrencias();
-            if (tabId === 'checklist') carregarChecklistPonto();
-            
-            document.querySelectorAll('.nav-btn, .bottom-nav-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-700', 'text-white');
-                const btnText = btn.textContent.toLowerCase();
-                if ((tabId === 'dashboard' && btnText.includes('dashboard')) ||
-                    (tabId === 'cadastro' && (btnText.includes('cadastrar') || btnText.includes('cadastro'))) ||
-                    (tabId === 'ponto' && btnText.includes('ponto')) ||
-                    (tabId === 'ocorrencias' && btnText.includes('ocorrência')) ||
-                    (tabId === 'checklist' && btnText.includes('checklist'))) {
-                    btn.classList.add('bg-slate-700', 'text-white');
-                }
-            });
+            const acoes = {
+                dashboard: () => window.atualizarDashboardFirebase?.(),
+                ponto: () => { carregarListaPendentesPonto(); carregarUltimosRegistros(); },
+                alocacao: () => { carregarAlocacoesHoje(); carregarResumoDistritos(); },
+                historico: () => carregarFuncionariosHistorico(),
+                checklist: () => carregarChecklistPonto(),
+                ocorrencias: () => carregarUltimasOcorrencias(),
+                relatorios: () => carregarRelatoriosGerenciais()
+            };
+            acoes[tabId]?.();
         }
 
         function toggleMotivo() {
@@ -515,28 +576,21 @@
             document.getElementById('div-oco-funcionario').classList.toggle('hidden', tipo === 'Unidade');
         }
 
-        // Verificar mudança de dia automaticamente
         let ultimaDataVerificada = new Date().toLocaleDateString('sv-SE');
-        
-        function verificarMudancaDia() {
+        setInterval(() => {
             const dataAtual = new Date().toLocaleDateString('sv-SE');
             if (dataAtual !== ultimaDataVerificada) {
-                console.log('Dia mudou! Resetando dashboard...');
                 ultimaDataVerificada = dataAtual;
                 document.getElementById('txt-data-atual').innerText = `📅 ${new Date().toLocaleDateString('pt-BR')}`;
-                if (typeof window.atualizarDashboardFirebase === 'function') {
-                    window.atualizarDashboardFirebase();
-                }
-                showToast(`📅 Novo dia! Dashboard atualizado para ${new Date().toLocaleDateString('pt-BR')}`, 'info');
+                window.atualizarDashboardFirebase?.();
+                showToast(`📅 Novo dia! Dashboard atualizado`, 'info');
             }
-        }
-        
-        setInterval(verificarMudancaDia, 60000);
+        }, 60000);
     </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, getDocs, query, where, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxdNT93FsZlW_w0CiuH2XTYYkCJfe-McU",
@@ -550,271 +604,427 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         let listaFuncionarios = [];
-        let pontosHoje = [];
+
+        // Dados dos Distritos
+        const distritosEspeciais = Array.from({length: 18}, (_, i) => `Especial ${i+1}`);
+        const distritosPostais = Array.from({length: 24}, (_, i) => `Postal ${i+1}`);
 
         const obterDataHoje = () => new Date().toLocaleDateString('sv-SE');
         
         document.getElementById('txt-data-atual').innerText = `📅 ${new Date().toLocaleDateString('pt-BR')}`;
         document.getElementById('ponto-data').value = obterDataHoje();
+        document.getElementById('aloc-data').value = obterDataHoje();
 
         window.atualizarDashboardFirebase = inicializarDashboard;
 
-        async function carregarSelects() {
+        // Carregar Funcionários
+        async function carregarFuncionarios() {
             try {
-                showLoading(true);
-                const querySnapshot = await getDocs(collection(db, "funcionarios"));
+                const snapshot = await getDocs(collection(db, "funcionarios"));
                 listaFuncionarios = [];
-                const selectPonto = document.getElementById('ponto-matricula');
-                const selectOco = document.getElementById('oco-matricula');
+                snapshot.forEach(doc => listaFuncionarios.push(doc.data()));
                 
-                if (!selectPonto || !selectOco) return;
-
-                selectPonto.innerHTML = '<option value="">-- Selecione o Funcionário --</option>';
-                selectOco.innerHTML = '<option value="">-- Selecione o Funcionário --</option>';
-
-                querySnapshot.forEach((doc) => {
-                    const func = doc.data();
-                    listaFuncionarios.push(func);
-                    const option = `<option value="${func.matricula}">${func.nome} [${func.matricula}] - ${func.cargo}</option>`;
-                    selectPonto.innerHTML += option;
-                    selectOco.innerHTML += option;
+                // Atualiza todos os selects de funcionário
+                const selects = ['ponto-matricula', 'oco-matricula', 'aloc-funcionario', 'historico-funcionario'];
+                selects.forEach(id => {
+                    const select = document.getElementById(id);
+                    if (select) {
+                        select.innerHTML = '<option value="">-- Selecione --</option>' + 
+                            listaFuncionarios.map(f => `<option value="${f.matricula}">${f.nome} [${f.matricula}] - ${f.cargo}</option>`).join('');
+                    }
                 });
-                showLoading(false);
             } catch (error) {
-                showLoading(false);
-                showToast("Erro ao carregar funcionários", "error");
-                console.error(error);
+                console.error("Erro:", error);
             }
         }
 
-        // Carregar checklist de ponto
-        window.carregarChecklistPonto = async function() {
-            try {
-                showLoading(true);
-                const dataHoje = obterDataHoje();
-                const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
-                const snapshotPonto = await getDocs(qPonto);
-                
-                pontosHoje = [];
-                snapshotPonto.forEach(doc => {
-                    pontosHoje.push(doc.data().matricula);
-                });
-                
-                const funcionariosSemPonto = listaFuncionarios.filter(f => !pontosHoje.includes(f.matricula));
-                const funcionariosComPonto = listaFuncionarios.filter(f => pontosHoje.includes(f.matricula));
-                
-                document.getElementById('checklist-resumo').innerHTML = `
-                    ${funcionariosComPonto.length} de ${listaFuncionarios.length} registraram ponto<br>
-                    <span class="text-red-600 text-sm">${funcionariosSemPonto.length} pendentes</span>
-                `;
-                
-                const tbody = document.getElementById('checklist-tbody');
-                
-                if (listaFuncionarios.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500">Nenhum funcionário cadastrado</td></tr>';
-                    showLoading(false);
-                    return;
-                }
-                
-                let html = '';
-                
-                funcionariosComPonto.forEach(func => {
-                    html += `
-                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition checklist-item">
-                            <td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-green-500"></span> <span class="text-xs text-green-700 ml-1">Registrado</span></td>
-                            <td class="px-4 py-3 font-mono text-sm">${func.matricula}</td>
-                            <td class="px-4 py-3 font-medium text-gray-800">${func.nome}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">${func.cargo}</td>
-                            <td class="px-4 py-3">
-                                <button onclick="verRegistroPonto('${func.matricula}')" class="text-blue-600 hover:text-blue-800 text-sm">👁️ Ver</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                funcionariosSemPonto.forEach(func => {
-                    html += `
-                        <tr class="border-b border-gray-100 bg-red-50 hover:bg-red-100 transition checklist-item">
-                            <td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> <span class="text-xs text-red-700 ml-1">Pendente</span></td>
-                            <td class="px-4 py-3 font-mono text-sm">${func.matricula}</td>
-                            <td class="px-4 py-3 font-medium text-gray-800">${func.nome}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">${func.cargo}</td>
-                            <td class="px-4 py-3">
-                                <button onclick="marcarAusenteRapido('${func.matricula}', '${func.nome}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs transition-all mr-2">
-                                    ⚠️ Marcar Ausente
-                                </button>
-                                <button onclick="enviarLembreteIndividual('${func.matricula}', '${func.nome}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs transition-all">
-                                    📧 Lembrete
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                tbody.innerHTML = html;
-                showLoading(false);
-            } catch (error) {
-                showLoading(false);
-                showToast("Erro ao carregar checklist", "error");
-                console.error(error);
-            }
-        };
-
-        window.verRegistroPonto = function(matricula) {
-            const func = listaFuncionarios.find(f => f.matricula === matricula);
-            if (func) {
-                showToast(`✅ ${func.nome} já registrou ponto hoje!`, 'info');
-            }
-        };
-
-        window.marcarAusenteRapido = async function(matricula, nome) {
-            if (confirm(`Marcar ${nome} como AUSENTE hoje?`)) {
-                try {
-                    showLoading(true);
-                    const dataHoje = obterDataHoje();
-                    await setDoc(doc(db, "ponto", `${dataHoje}_${matricula}`), { 
-                        data: dataHoje, 
-                        matricula, 
-                        status: 'Ausente', 
-                        motivo: 'Falta não justificada'
-                    });
-                    showToast(`${nome} marcado como ausente!`, 'success');
-                    await carregarChecklistPonto();
-                    if (typeof window.atualizarDashboardFirebase === 'function') {
-                        window.atualizarDashboardFirebase();
-                    }
-                    showLoading(false);
-                } catch (error) {
-                    showLoading(false);
-                    showToast("Erro ao marcar ausente", "error");
-                }
-            }
-        };
-
-        window.enviarLembreteIndividual = function(matricula, nome) {
-            showToast(`📧 Lembrete enviado para ${nome} (simulação)`, 'info');
-            console.log(`Lembrete enviado para ${nome} - ${matricula}`);
-        };
-
-        window.enviarLembretes = async function() {
+        // Lista de pendentes que desaparece ao bater ponto
+        async function carregarListaPendentesPonto() {
             const dataHoje = obterDataHoje();
             const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
             const snapshotPonto = await getDocs(qPonto);
+            const matriculasQueBateram = new Set();
+            snapshotPonto.forEach(doc => matriculasQueBateram.add(doc.data().matricula));
             
-            const pontosHojeTemp = [];
-            snapshotPonto.forEach(doc => {
-                pontosHojeTemp.push(doc.data().matricula);
-            });
+            const pendentes = listaFuncionarios.filter(f => !matriculasQueBateram.has(f.matricula));
+            const container = document.getElementById('lista-pendentes-ponto');
             
-            const funcionariosSemPonto = listaFuncionarios.filter(f => !pontosHojeTemp.includes(f.matricula));
-            
-            if (funcionariosSemPonto.length === 0) {
-                showToast("Todos os funcionários já registraram ponto hoje!", 'success');
+            if (pendentes.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-green-600 font-semibold">🎉 Todos os funcionários já bateram ponto hoje!</div>';
                 return;
             }
             
-            showToast(`📧 Enviando lembretes para ${funcionariosSemPonto.length} funcionário(s)...`, 'info');
-            
-            for (const func of funcionariosSemPonto) {
-                console.log(`Lembrete enviado para ${func.nome} - ${func.matricula}`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-            
-            showToast(`✅ Lembretes enviados para ${funcionariosSemPonto.length} funcionário(s)!`, 'success');
+            container.innerHTML = pendentes.map(f => `
+                <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-orange-200 checklist-item">
+                    <div>
+                        <p class="font-medium text-gray-800">${f.nome}</p>
+                        <p class="text-xs text-gray-500">${f.cargo} - ${f.matricula}</p>
+                    </div>
+                    <button onclick="document.getElementById('ponto-matricula').value='${f.matricula}'; document.getElementById('ponto-status').focus(); showToast('Selecione o status para ${f.nome}', 'info')" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded-lg text-sm btn-pressed">
+                        Registrar Ponto
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Carregar Distritos
+        window.carregarDistritos = function() {
+            const tipo = document.getElementById('aloc-tipo').value;
+            const select = document.getElementById('aloc-distrito');
+            const distritos = tipo === 'Especial' ? distritosEspeciais : distritosPostais;
+            select.innerHTML = '<option value="">Selecione o distrito</option>' + 
+                distritos.map(d => `<option value="${d}">${d}</option>`).join('');
         };
 
+        // Formulário de Cadastro
         document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('cad-matricula').value.trim();
             const nome = document.getElementById('cad-nome').value.trim();
             const cargo = document.getElementById('cad-cargo').value;
-
-            if (!matricula || !nome) {
-                showToast("Preencha todos os campos!", "error");
-                return;
-            }
-
+            
+            if (!matricula || !nome) return showToast("Preencha todos os campos!", "error");
+            
             try {
                 showLoading(true);
                 await setDoc(doc(db, "funcionarios", matricula), { matricula, nome, cargo });
-                showToast(`Funcionário ${nome} cadastrado com sucesso!`, "success");
+                showToast(`Funcionário ${nome} cadastrado!`, "success");
                 document.getElementById('form-cadastro').reset();
-                await carregarSelects();
+                await carregarFuncionarios();
                 showLoading(false);
             } catch (error) {
                 showLoading(false);
-                showToast("Erro ao salvar no Firebase", "error");
-                console.error(error);
+                showToast("Erro ao salvar", "error");
             }
         });
 
+        // Formulário de Ponto (com remoção da lista)
         document.getElementById('form-ponto').addEventListener('submit', async (e) => {
             e.preventDefault();
             const matricula = document.getElementById('ponto-matricula').value;
             const status = document.getElementById('ponto-status').value;
             const motivo = status === 'Ausente' ? document.getElementById('ponto-motivo').value : '';
             const dataSelecionada = document.getElementById('ponto-data').value;
-
-            if (!matricula) {
-                showToast("Selecione um funcionário!", "error");
-                return;
-            }
-
+            
+            if (!matricula) return showToast("Selecione um funcionário!", "error");
+            
             try {
                 showLoading(true);
-                await setDoc(doc(db, "ponto", `${dataSelecionada}_${matricula}`), { 
-                    data: dataSelecionada, 
-                    matricula, 
-                    status, 
-                    motivo 
-                });
-                showToast("Ponto registrado com sucesso!", "success");
+                await setDoc(doc(db, "ponto", `${dataSelecionada}_${matricula}`), { data: dataSelecionada, matricula, status, motivo });
+                showToast("Ponto registrado!", "success");
                 document.getElementById('form-ponto').reset();
                 document.getElementById('ponto-data').value = obterDataHoje();
                 toggleMotivo();
+                await carregarListaPendentesPonto(); // Atualiza a lista (o nome some)
                 await carregarUltimosRegistros();
                 showLoading(false);
             } catch (error) {
                 showLoading(false);
-                showToast("Erro ao registrar ponto", "error");
-                console.error(error);
+                showToast("Erro ao registrar", "error");
             }
         });
 
-        async function carregarUltimosRegistros() {
+        // Formulário de Alocação
+        document.getElementById('form-alocacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const matricula = document.getElementById('aloc-funcionario').value;
+            const tipo = document.getElementById('aloc-tipo').value;
+            const distrito = document.getElementById('aloc-distrito').value;
+            const data = document.getElementById('aloc-data').value;
+            const turno = document.getElementById('aloc-turno').value;
+            
+            if (!matricula || !distrito) return showToast("Preencha todos os campos!", "error");
+            
+            const funcionario = listaFuncionarios.find(f => f.matricula === matricula);
+            
             try {
-                const q = query(collection(db, "ponto"), orderBy("data", "desc"), limit(10));
-                const snapshot = await getDocs(q);
-                const container = document.getElementById('ultimos-registros');
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum registro encontrado</p>';
-                    return;
-                }
-
-                let html = '';
-                for (const doc of snapshot.docs) {
-                    const p = doc.data();
-                    const func = listaFuncionarios.find(f => f.matricula === p.matricula);
-                    const nomeFunc = func ? func.nome : p.matricula;
-                    html += `
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-800">${nomeFunc}</p>
-                                <p class="text-xs text-gray-500">${p.data.split('-').reverse().join('/')}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${p.status === 'Presente' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
-                                    ${p.status === 'Presente' ? '✅ Presente' : `❌ Ausente - ${p.motivo || ''}`}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                }
-                container.innerHTML = html;
+                showLoading(true);
+                await addDoc(collection(db, "alocacoes"), {
+                    matricula, nome: funcionario?.nome, cargo: funcionario?.cargo,
+                    tipo, distrito, data, turno, dataRegistro: obterDataHoje()
+                });
+                showToast(`✅ ${funcionario?.nome} alocado para ${distrito}`, "success");
+                document.getElementById('form-alocacao').reset();
+                document.getElementById('aloc-data').value = obterDataHoje();
+                await carregarAlocacoesHoje();
+                await carregarResumoDistritos();
+                showLoading(false);
             } catch (error) {
-                console.error(error);
+                showLoading(false);
+                showToast("Erro ao alocar", "error");
             }
+        });
+
+        // Carregar Alocações do Dia
+        async function carregarAlocacoesHoje() {
+            const dataHoje = obterDataHoje();
+            const q = query(collection(db, "alocacoes"), where("data", "==", dataHoje));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('alocacoes-hoje');
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhuma alocação hoje</p>';
+                return;
+            }
+            
+            let html = '';
+            snapshot.forEach(doc => {
+                const a = doc.data();
+                html += `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                        <div>
+                            <p class="font-medium">${a.nome}</p>
+                            <p class="text-xs text-gray-500">${a.cargo} - ${a.turno}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold ${a.tipo === 'Especial' ? 'text-amber-600' : 'text-blue-600'}">${a.distrito}</p>
+                            <p class="text-xs text-gray-500">${a.tipo}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Resumo por Distrito
+        async function carregarResumoDistritos() {
+            const dataHoje = obterDataHoje();
+            const q = query(collection(db, "alocacoes"), where("data", "==", dataHoje));
+            const snapshot = await getDocs(q);
+            
+            const alocacoesEspeciais = {};
+            const alocacoesPostais = {};
+            
+            distritosEspeciais.forEach(d => alocacoesEspeciais[d] = []);
+            distritosPostais.forEach(d => alocacoesPostais[d] = []);
+            
+            snapshot.forEach(doc => {
+                const a = doc.data();
+                if (a.tipo === 'Especial') alocacoesEspeciais[a.distrito]?.push(a);
+                else alocacoesPostais[a.distrito]?.push(a);
+            });
+            
+            const containerEsp = document.getElementById('resumo-especiais');
+            const containerPos = document.getElementById('resumo-postais');
+            
+            containerEsp.innerHTML = distritosEspeciais.map(d => {
+                const alocados = alocacoesEspeciais[d] || [];
+                const cores = alocados.length > 0 ? 'bg-green-100 border-green-400' : 'bg-gray-50 border-gray-200';
+                return `<div class="flex justify-between items-center p-2 rounded-lg border ${cores}">
+                    <span class="font-medium">${d}</span>
+                    <span class="text-sm">${alocados.map(a => a.nome?.split(' ')[0]).join(', ') || '⚠️ Não alocado'}</span>
+                </div>`;
+            }).join('');
+            
+            containerPos.innerHTML = distritosPostais.map(d => {
+                const alocados = alocacoesPostais[d] || [];
+                const cores = alocados.length > 0 ? 'bg-green-100 border-green-400' : 'bg-gray-50 border-gray-200';
+                return `<div class="flex justify-between items-center p-2 rounded-lg border ${cores}">
+                    <span class="font-medium">${d}</span>
+                    <span class="text-sm">${alocados.map(a => a.nome?.split(' ')[0]).join(', ') || '⚠️ Não alocado'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // Histórico Completo
+        window.carregarHistoricoCompleto = async function() {
+            const matricula = document.getElementById('historico-funcionario').value;
+            const tipo = document.getElementById('historico-tipo').value;
+            const container = document.getElementById('historico-resultados');
+            
+            showLoading(true);
+            let resultados = [];
+            
+            if (tipo === 'tudo' || tipo === 'ponto') {
+                const q = matricula ? query(collection(db, "ponto"), where("matricula", "==", matricula)) : collection(db, "ponto");
+                const snapshot = await getDocs(q);
+                snapshot.forEach(doc => resultados.push({ type: 'ponto', ...doc.data(), id: doc.id }));
+            }
+            
+            if (tipo === 'tudo' || tipo === 'alocacao') {
+                const q = matricula ? query(collection(db, "alocacoes"), where("matricula", "==", matricula)) : collection(db, "alocacoes");
+                const snapshot = await getDocs(q);
+                snapshot.forEach(doc => resultados.push({ type: 'alocacao', ...doc.data(), id: doc.id }));
+            }
+            
+            if (tipo === 'tudo' || tipo === 'ocorrencia') {
+                const q = matricula ? query(collection(db, "ocorrencias"), where("matricula", "==", matricula)) : collection(db, "ocorrencias");
+                const snapshot = await getDocs(q);
+                snapshot.forEach(doc => resultados.push({ type: 'ocorrencia', ...doc.data(), id: doc.id }));
+            }
+            
+            resultados.sort((a,b) => (b.data || '').localeCompare(a.data || ''));
+            
+            if (resultados.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Nenhum registro encontrado</p>';
+                showLoading(false);
+                return;
+            }
+            
+            container.innerHTML = resultados.map(r => {
+                if (r.type === 'ponto') {
+                    return `<div class="p-3 bg-gray-50 rounded-xl border-l-4 ${r.status === 'Presente' ? 'border-green-500' : 'border-red-500'}">
+                        <div class="flex justify-between"><span class="font-semibold">📝 Ponto</span><span class="text-sm text-gray-500">${r.data?.split('-').reverse().join('/')}</span></div>
+                        <p>Status: ${r.status === 'Presente' ? '✅ Presente' : `❌ Ausente - ${r.motivo || ''}`}</p>
+                    </div>`;
+                } else if (r.type === 'alocacao') {
+                    return `<div class="p-3 bg-blue-50 rounded-xl border-l-4 border-blue-500">
+                        <div class="flex justify-between"><span class="font-semibold">🗺️ Alocação</span><span class="text-sm text-gray-500">${r.data?.split('-').reverse().join('/')}</span></div>
+                        <p>${r.distrito} - ${r.turno} | ${r.cargo}</p>
+                    </div>`;
+                } else {
+                    return `<div class="p-3 bg-red-50 rounded-xl border-l-4 border-red-500">
+                        <div class="flex justify-between"><span class="font-semibold">⚠️ Ocorrência</span><span class="text-sm text-gray-500">${r.data?.split('-').reverse().join('/')}</span></div>
+                        <p>${r.descricao?.substring(0, 100)}</p>
+                    </div>`;
+                }
+            }).join('');
+            showLoading(false);
+        };
+
+        async function carregarFuncionariosHistorico() {
+            await carregarFuncionarios();
+        }
+
+        // Relatórios Gerenciais
+        let chartSemana, chartFuncao, chartDistribuicao;
+        
+        async function carregarRelatoriosGerenciais() {
+            const trintaDiasAtras = new Date();
+            trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+            const dataLimite = trintaDiasAtras.toLocaleDateString('sv-SE');
+            
+            const q = query(collection(db, "alocacoes"), where("data", ">=", dataLimite));
+            const snapshot = await getDocs(q);
+            
+            const alocacoes = [];
+            snapshot.forEach(doc => alocacoes.push(doc.data()));
+            
+            // Por dia da semana
+            const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const contagemDias = [0,0,0,0,0,0,0];
+            const contagemFuncao = { Motorista:0, Motociclista:0, Ciclista:0, Interno:0, Pedestre:0, Gestão:0 };
+            const coberturaEspeciais = {};
+            const coberturaPostais = {};
+            
+            distritosEspeciais.forEach(d => coberturaEspeciais[d] = 0);
+            distritosPostais.forEach(d => coberturaPostais[d] = 0);
+            
+            alocacoes.forEach(a => {
+                const data = new Date(a.data);
+                const diaSemana = data.getDay();
+                contagemDias[diaSemana]++;
+                if (contagemFuncao[a.cargo] !== undefined) contagemFuncao[a.cargo]++;
+                if (a.tipo === 'Especial') coberturaEspeciais[a.distrito]++;
+                else coberturaPostais[a.distrito]++;
+            });
+            
+            if (chartSemana) chartSemana.destroy();
+            const ctxSemana = document.getElementById('chartAlocacaoSemana');
+            if (ctxSemana) {
+                chartSemana = new Chart(ctxSemana, {
+                    type: 'bar',
+                    data: { labels: diasSemana, datasets: [{ label: 'Alocações', data: contagemDias, backgroundColor: '#3b82f6', borderRadius: 8 }] },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            }
+            
+            if (chartFuncao) chartFuncao.destroy();
+            const ctxFuncao = document.getElementById('chartAlocacaoFuncao');
+            if (ctxFuncao) {
+                chartFuncao = new Chart(ctxFuncao, {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(contagemFuncao), datasets: [{ data: Object.values(contagemFuncao), backgroundColor: ['#ef4444','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec489a'] }] },
+                    options: { responsive: true }
+                });
+            }
+            
+            const containerEsp = document.getElementById('relatorio-especiais');
+            const containerPos = document.getElementById('relatorio-postais');
+            
+            containerEsp.innerHTML = distritosEspeciais.map(d => 
+                `<div class="flex justify-between items-center p-2 border-b"><span>${d}</span><span class="font-bold ${coberturaEspeciais[d] > 0 ? 'text-green-600' : 'text-red-600'}">${coberturaEspeciais[d]} alocações</span></div>`
+            ).join('');
+            
+            containerPos.innerHTML = distritosPostais.map(d => 
+                `<div class="flex justify-between items-center p-2 border-b"><span>${d}</span><span class="font-bold ${coberturaPostais[d] > 0 ? 'text-green-600' : 'text-red-600'}">${coberturaPostais[d]} alocações</span></div>`
+            ).join('');
+        }
+
+        // Checklist Ponto
+        window.carregarChecklistPonto = async function() {
+            const dataHoje = obterDataHoje();
+            const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
+            const snapshotPonto = await getDocs(qPonto);
+            const matriculasQueBateram = new Set();
+            snapshotPonto.forEach(doc => matriculasQueBateram.add(doc.data().matricula));
+            
+            const pendentes = listaFuncionarios.filter(f => !matriculasQueBateram.has(f.matricula));
+            const registrados = listaFuncionarios.filter(f => matriculasQueBateram.has(f.matricula));
+            
+            document.getElementById('checklist-resumo').innerHTML = `${registrados.length} de ${listaFuncionarios.length} registraram ponto<br><span class="text-red-600">${pendentes.length} pendentes</span>`;
+            
+            const tbody = document.getElementById('checklist-tbody');
+            if (listaFuncionarios.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8">Nenhum funcionário cadastrado</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            registrados.forEach(f => {
+                html += `<tr class="border-b"><td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-green-500"></span> Registrado</td>
+                    <td class="px-4 py-3">${f.matricula}</td><td class="px-4 py-3">${f.nome}</td>
+                    <td class="px-4 py-3">${f.cargo}</td><td class="px-4 py-3"><span class="text-green-600">✅ OK</span></td></tr>`;
+            });
+            pendentes.forEach(f => {
+                html += `<tr class="border-b bg-red-50"><td class="px-4 py-3"><span class="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> Pendente</td>
+                    <td class="px-4 py-3">${f.matricula}</td><td class="px-4 py-3">${f.nome}</td>
+                    <td class="px-4 py-3">${f.cargo}</td>
+                    <td class="px-4 py-3"><button onclick="document.getElementById('ponto-matricula').value='${f.matricula}'; showTab('ponto')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">Registrar</button></td></tr>`;
+            });
+            tbody.innerHTML = html;
+        };
+
+        // Outras funções
+        async function carregarUltimosRegistros() {
+            const q = query(collection(db, "ponto"), orderBy("data", "desc"), limit(10));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('ultimos-registros');
+            if (!container) return;
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum registro</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const doc of snapshot.docs) {
+                const p = doc.data();
+                const func = listaFuncionarios.find(f => f.matricula === p.matricula);
+                html += `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl"><div><p class="font-medium">${func?.nome || p.matricula}</p><p class="text-xs">${p.data?.split('-').reverse().join('/')}</p></div><span class="px-3 py-1 rounded-full text-xs ${p.status === 'Presente' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${p.status === 'Presente' ? '✅ Presente' : `❌ ${p.motivo || 'Ausente'}`}</span></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function carregarUltimasOcorrencias() {
+            const q = query(collection(db, "ocorrencias"), orderBy("data", "desc"), limit(15));
+            const snapshot = await getDocs(q);
+            const container = document.getElementById('lista-ocorrencias');
+            if (!container) return;
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhuma ocorrência</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const doc of snapshot.docs) {
+                const oco = doc.data();
+                const nomeFunc = oco.matricula !== 'UNIDADE' ? listaFuncionarios.find(f => f.matricula === oco.matricula)?.nome || oco.matricula : 'Toda Unidade';
+                html += `<div class="p-4 bg-red-50 rounded-xl border-l-4 border-red-400"><div class="flex justify-between"><span class="font-semibold">${oco.tipo === 'Individual' ? '👤 ' + nomeFunc : '🏢 ' + nomeFunc}</span><span class="text-xs">${oco.data?.split('-').reverse().join('/')}</span></div><p class="text-sm mt-2">${oco.descricao}</p></div>`;
+            }
+            container.innerHTML = html;
         }
 
         document.getElementById('form-ocorrencia').addEventListener('submit', async (e) => {
@@ -822,150 +1032,79 @@
             const tipo = document.getElementById('oco-tipo').value;
             const matricula = tipo === 'Individual' ? document.getElementById('oco-matricula').value : 'UNIDADE';
             const descricao = document.getElementById('oco-descricao').value.trim();
-            const dataHoje = obterDataHoje();
-
-            if (tipo === 'Individual' && !matricula) {
-                showToast("Selecione um funcionário!", "error");
-                return;
-            }
-
-            if (!descricao) {
-                showToast("Descreva a ocorrência!", "error");
-                return;
-            }
-
+            
+            if (tipo === 'Individual' && !matricula) return showToast("Selecione um funcionário!", "error");
+            if (!descricao) return showToast("Descreva a ocorrência!", "error");
+            
             try {
-                showLoading(true);
-                await addDoc(collection(db, "ocorrencias"), { data: dataHoje, tipo, matricula, descricao });
-                showToast("Ocorrência registrada com sucesso!", "success");
+                await addDoc(collection(db, "ocorrencias"), { data: obterDataHoje(), tipo, matricula, descricao });
+                showToast("Ocorrência registrada!", "success");
                 document.getElementById('form-ocorrencia').reset();
                 await carregarUltimasOcorrencias();
-                showLoading(false);
             } catch (error) {
-                showLoading(false);
-                showToast("Erro ao registrar ocorrência", "error");
-                console.error(error);
+                showToast("Erro ao registrar", "error");
             }
         });
 
-        async function carregarUltimasOcorrencias() {
-            try {
-                const q = query(collection(db, "ocorrencias"), orderBy("data", "desc"), limit(15));
-                const snapshot = await getDocs(q);
-                const container = document.getElementById('lista-ocorrencias');
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhuma ocorrência registrada</p>';
-                    return;
-                }
-
-                let html = '';
-                for (const doc of snapshot.docs) {
-                    const oco = doc.data();
-                    const nomeFunc = oco.matricula !== 'UNIDADE' ? 
-                        listaFuncionarios.find(f => f.matricula === oco.matricula)?.nome || oco.matricula : 
-                        'Toda Unidade';
-                    
-                    html += `
-                        <div class="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border-l-4 border-red-400">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <span class="font-semibold text-gray-800">${oco.tipo === 'Individual' ? '👤 ' + nomeFunc : '🏢 ' + nomeFunc}</span>
-                                    <span class="text-xs text-gray-500 ml-2">${oco.data.split('-').reverse().join('/')}</span>
-                                </div>
-                                <span class="text-red-600">⚠️</span>
-                            </div>
-                            <p class="text-gray-700 text-sm">${oco.descricao}</p>
-                        </div>
-                    `;
-                }
-                container.innerHTML = html;
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        let chartM, chartF;
+        // Dashboard com dados de distritos
+        let chartDistritos, chartFuncoesAloc;
+        
         async function inicializarDashboard() {
             const dataHoje = obterDataHoje();
             try {
                 showLoading(true);
+                
+                // Ponto
                 const qPonto = query(collection(db, "ponto"), where("data", "==", dataHoje));
                 const snapshotPonto = await getDocs(qPonto);
-                
                 let presentes = 0, ausentes = 0;
-                let motivosContagem = { AM: 0, LM: 0, "Serviço externo": 0, Folga: 0, Férias: 0 };
-                let funcoesContagem = { Motorista: 0, Motociclista: 0, Ciclista: 0, Interno: 0, Pedestre: 0, Gestão: 0 };
-
                 snapshotPonto.forEach(doc => {
-                    const p = doc.data();
-                    if (p.status === 'Presente') {
-                        presentes++;
-                    } else {
-                        ausentes++;
-                        if (motivosContagem[p.motivo] !== undefined) motivosContagem[p.motivo]++;
-                    }
-
-                    const dadosFuncionario = listaFuncionarios.find(f => f.matricula === p.matricula);
-                    if (dadosFuncionario && p.status === 'Presente') {
-                        if (funcoesContagem[dadosFuncionario.cargo] !== undefined) funcoesContagem[dadosFuncionario.cargo]++;
-                    }
+                    if (doc.data().status === 'Presente') presentes++;
+                    else ausentes++;
                 });
-
-                const total = listaFuncionarios.length;
-                const taxa = total > 0 ? Math.round((presentes / total) * 100) : 0;
-                document.getElementById('taxa-presenca').innerText = `${taxa}%`;
-                document.getElementById('barra-presenca').style.width = `${taxa}%`;
-
-                document.getElementById('dash-presentes').innerText = presentes;
-                document.getElementById('dash-ausentes').innerText = ausentes;
-
-                const snapshotOco = await getDocs(collection(db, "ocorrencias"));
-                document.getElementById('dash-ocorrencias').innerText = snapshotOco.size;
-
-                if (chartM) chartM.destroy();
-                if (chartF) chartF.destroy();
-
-                const ctxMotivos = document.getElementById('chartMotivos');
-                if (ctxMotivos) {
-                    chartM = new Chart(ctxMotivos, {
+                document.getElementById('dash-presentes').innerHTML = presentes;
+                document.getElementById('dash-ausentes').innerHTML = ausentes;
+                
+                // Alocações do dia
+                const qAloc = query(collection(db, "alocacoes"), where("data", "==", dataHoje));
+                const snapshotAloc = await getDocs(qAloc);
+                let especiais = 0, postais = 0;
+                const funcoesAloc = { Motorista:0, Motociclista:0, Ciclista:0, Interno:0, Pedestre:0, Gestão:0 };
+                
+                snapshotAloc.forEach(doc => {
+                    const a = doc.data();
+                    if (a.tipo === 'Especial') especiais++;
+                    else postais++;
+                    if (funcoesAloc[a.cargo] !== undefined) funcoesAloc[a.cargo]++;
+                });
+                
+                document.getElementById('dash-especiais').innerHTML = especiais;
+                document.getElementById('dash-postais').innerHTML = postais;
+                
+                // Gráficos
+                if (chartDistritos) chartDistritos.destroy();
+                const ctxDist = document.getElementById('chartDistritos');
+                if (ctxDist) {
+                    chartDistritos = new Chart(ctxDist, {
                         type: 'doughnut',
-                        data: {
-                            labels: ['AM (Atestado)', 'LM (Licença)', 'Serviço Externo', 'Folga', 'Férias'],
-                            datasets: [{ 
-                                data: Object.values(motivosContagem), 
-                                backgroundColor: ['#ef4444', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: { 
-                            responsive: true,
-                            plugins: {
-                                legend: { position: 'bottom' }
-                            }
-                        }
+                        data: { labels: ['Distritos Especiais', 'Distritos Postais'], datasets: [{ data: [especiais, postais], backgroundColor: ['#f59e0b', '#3b82f6'], borderWidth: 0 }] },
+                        options: { responsive: true }
                     });
                 }
-
-                const ctxFuncoes = document.getElementById('chartFuncoes');
-                if (ctxFuncoes) {
-                    chartF = new Chart(ctxFuncoes, {
+                
+                if (chartFuncoesAloc) chartFuncoesAloc.destroy();
+                const ctxFunc = document.getElementById('chartFuncoesAlocacao');
+                if (ctxFunc) {
+                    chartFuncoesAloc = new Chart(ctxFunc, {
                         type: 'bar',
-                        data: {
-                            labels: Object.keys(funcoesContagem),
-                            datasets: [{ 
-                                data: Object.values(funcoesContagem), 
-                                backgroundColor: '#334155',
-                                borderRadius: 8
-                            }]
-                        },
-                        options: { 
-                            responsive: true, 
-                            scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }, 
-                            plugins: { legend: { display: false } }
-                        }
+                        data: { labels: Object.keys(funcoesAloc), datasets: [{ data: Object.values(funcoesAloc), backgroundColor: '#334155', borderRadius: 8 }] },
+                        options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
                     });
                 }
+                
+                const snapshotOco = await getDocs(collection(db, "ocorrencias"));
+                document.getElementById('dash-ocorrencias').innerHTML = snapshotOco.size;
+                
                 showLoading(false);
             } catch (error) {
                 showLoading(false);
@@ -973,8 +1112,10 @@
             }
         }
 
-        await carregarSelects();
+        // Inicialização
+        await carregarFuncionarios();
         await inicializarDashboard();
+        window.carregarDistritos();
     </script>
 </body>
 </html>
