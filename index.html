@@ -23,14 +23,29 @@
         body { background: #f3f4f6; }
         .transition-sidebar { transition: all 0.2s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 20px -12px rgba(0,0,0,0.15); }
-        .sidebar-item.active { background-color: #e0e7ff; color: #1e3a8a; border-left: 4px solid #2563eb; }
-        .sidebar-item { transition: all 0.2s; cursor: pointer; }
-        .toast-notify { position: fixed; bottom: 24px; right: 24px; z-index: 9999; animation: slideIn 0.2s ease-out; }
+        .sidebar-item.active { 
+            background-color: #e0e7ff; 
+            color: #1e3a8a; 
+            border-left: 4px solid #2563eb;
+            font-weight: 600;
+        }
+        .sidebar-item { 
+            transition: all 0.2s; 
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        .toast-notify { 
+            position: fixed; 
+            bottom: 24px; 
+            right: 24px; 
+            z-index: 9999; 
+            animation: slideIn 0.2s ease-out;
+            font-size: 0.875rem;
+        }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
         .tab-content { display: none; }
         .tab-content.active-tab { display: block; }
-        input, select, textarea { transition: all 0.2s; }
-        input:focus, select:focus, textarea:focus { ring: 2px solid #3b82f6; border-color: #3b82f6; outline: none; }
+        input:focus, select:focus, textarea:focus { ring: 2px solid #3b82f6; border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -43,16 +58,16 @@
             <h1 class="text-xl font-bold text-gray-800">Logística<span class="text-blue-600">Control</span></h1>
         </div>
         <nav class="p-4 space-y-2">
-            <div data-tab="dashboard" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <div data-tab="dashboard" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                 <i class="fas fa-chart-pie w-5"></i> <span>Dashboard</span>
             </div>
-            <div data-tab="cadastro" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <div data-tab="cadastro" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                 <i class="fas fa-user-plus w-5"></i> <span>Cadastro de Funcionário</span>
             </div>
-            <div data-tab="ponto" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <div data-tab="ponto" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                 <i class="fas fa-fingerprint w-5"></i> <span>Registro de Ponto</span>
             </div>
-            <div data-tab="ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 font-medium">
+            <div data-tab="ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                 <i class="fas fa-exclamation-triangle w-5"></i> <span>Ocorrências</span>
             </div>
         </nav>
@@ -64,7 +79,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 p-6 md:p-8 overflow-auto">
         <!-- DASHBOARD -->
-        <div id="dashboard" class="tab-content active-tab">
+        <div id="dashboard" class="tab-content">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Painel Operacional</h2>
                 <p class="text-gray-500">Visão geral de hoje</p>
@@ -155,7 +170,7 @@
 
 <script type="module">
     import { initializeApp } from "firebase/app";
-    import { getFirestore, collection, doc, setDoc, getDocs, query, where, deleteField, onSnapshot, getDoc } from "firebase/firestore";
+    import { getFirestore, collection, doc, setDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
 
     // ================= CONFIGURAÇÃO FIREBASE (SUBSTITUIR CREDENCIAIS) =================
     const firebaseConfig = {
@@ -166,7 +181,8 @@
         messagingSenderId: "144385976152",
         appId: "1:144385976152:web:3638be237a1187fef2e72d"
     };
-    // Inicializar
+    
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     
@@ -197,22 +213,29 @@
         return `${year}-${month}-${day}`;
     }
     
-    // Carrega selects de funcionários (cadastro e ponto e ocorrências)
+    // Carrega selects de funcionários
     async function carregarSelectFuncionarios() {
-        const snapshot = await getDocs(funcionariosRef);
-        const funcionarios = [];
-        snapshot.forEach(doc => { funcionarios.push({ id: doc.id, ...doc.data() }); });
-        const selectPonto = document.getElementById("selectFuncionarioPonto");
-        const selectOcorr = document.getElementById("selectFuncOcorrencia");
-        if(selectPonto) {
-            selectPonto.innerHTML = '<option value="">Selecione funcionário</option>';
-            funcionarios.forEach(f => { selectPonto.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
+        try {
+            const snapshot = await getDocs(funcionariosRef);
+            const funcionarios = [];
+            snapshot.forEach(doc => { funcionarios.push({ id: doc.id, ...doc.data() }); });
+            
+            const selectPonto = document.getElementById("selectFuncionarioPonto");
+            const selectOcorr = document.getElementById("selectFuncOcorrencia");
+            
+            if(selectPonto) {
+                selectPonto.innerHTML = '<option value="">Selecione funcionário</option>';
+                funcionarios.forEach(f => { selectPonto.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
+            }
+            if(selectOcorr) {
+                selectOcorr.innerHTML = '<option value="">Selecione funcionário</option>';
+                funcionarios.forEach(f => { selectOcorr.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
+            }
+            return funcionarios;
+        } catch(error) {
+            console.error("Erro ao carregar funcionários:", error);
+            return [];
         }
-        if(selectOcorr) {
-            selectOcorr.innerHTML = '<option value="">Selecione funcionário</option>';
-            funcionarios.forEach(f => { selectOcorr.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
-        }
-        return funcionarios;
     }
     
     // CADASTRO FUNCIONÁRIO
@@ -226,11 +249,12 @@
             await setDoc(doc(db, "funcionarios", matricula), { nome, cargo, matricula });
             showToast(`Funcionário ${nome} cadastrado com sucesso!`);
             document.getElementById("formFuncionario").reset();
-            carregarSelectFuncionarios();
+            await carregarSelectFuncionarios();
+            await atualizarDashboard();
         } catch(err) { showToast("Erro ao cadastrar: "+err.message, "error"); }
     });
     
-    // REGISTRO PONTO (com ID composto DATA_MATRICULA)
+    // REGISTRO PONTO
     document.getElementById("formPonto").addEventListener("submit", async (e) => {
         e.preventDefault();
         const funcionarioId = document.getElementById("selectFuncionarioPonto").value;
@@ -253,7 +277,7 @@
         try {
             await setDoc(doc(db, "pontos", docId), pontoData);
             showToast(`Ponto registrado/atualizado para ${dataAtual}`);
-            if(window.refreshDashboard) await window.refreshDashboard();
+            await atualizarDashboard();
         } catch(err) { showToast("Erro no ponto: "+err.message, "error"); }
     });
     
@@ -284,133 +308,174 @@
             document.getElementById("formOcorrencia").reset();
             document.getElementById("descricaoOcorrencia").value = "";
             document.getElementById("abrangencia").dispatchEvent(new Event("change"));
-            if(window.refreshDashboard) await window.refreshDashboard();
+            await atualizarDashboard();
         } catch(err) { showToast("Erro ao salvar ocorrência: "+err.message, "error"); }
     });
     
-    // Condicionais UI: motivo ausência e abrangência
+    // Condicionais UI
     document.getElementById("statusPresenca").addEventListener("change", (e) => {
         const divMotivo = document.getElementById("motivoAusenciaDiv");
         if(e.target.value === "Ausente") divMotivo.classList.remove("hidden");
         else divMotivo.classList.add("hidden");
     });
+    
     document.getElementById("abrangencia").addEventListener("change", (e) => {
         const campoFunc = document.getElementById("campoFuncOcorrencia");
         if(e.target.value === "Individual") campoFunc.classList.remove("hidden");
         else campoFunc.classList.add("hidden");
     });
     
-    // ----- DASHBOARD: lógica completa (presentes/ausentes/ocorrencias e gráficos) -----
+    // DASHBOARD: atualizar cards e gráficos
     async function atualizarDashboard() {
-        const hoje = getLocalDateStr();
-        // Buscar pontos de hoje
-        const pontosQuery = query(pontosRef, where("data", "==", hoje));
-        const pontosSnap = await getDocs(pontosQuery);
-        let presentes = 0, ausentes = 0;
-        const ausenciasPorMotivo = { "AM":0, "LM":0, "Serviço externo":0, "Folga":0, "Férias":0 };
-        const pontosList = [];
-        pontosSnap.forEach(doc => {
-            const p = doc.data();
-            pontosList.push(p);
-            if(p.status === "Presente") presentes++;
-            else if(p.status === "Ausente") {
-                ausentes++;
-                const motivo = p.motivo;
-                if(motivo && ausenciasPorMotivo.hasOwnProperty(motivo)) ausenciasPorMotivo[motivo]++;
-                else if(motivo === "AM") ausenciasPorMotivo.AM++;
-                else if(motivo === "LM") ausenciasPorMotivo.LM++;
-                else if(motivo === "Serviço externo") ausenciasPorMotivo["Serviço externo"]++;
-                else if(motivo === "Folga") ausenciasPorMotivo.Folga++;
-                else if(motivo === "Férias") ausenciasPorMotivo.Férias++;
-            }
-        });
-        document.getElementById("presentesCount").innerText = presentes;
-        document.getElementById("ausentesCount").innerText = ausentes;
-        
-        // Total de ocorrências
-        const ocorrSnap = await getDocs(ocorrenciasRef);
-        document.getElementById("totalOcorrenciasCount").innerText = ocorrSnap.size;
-        
-        // Gráfico Doughnut (ausências)
-        const labelsAusencias = Object.keys(ausenciasPorMotivo);
-        const dataAusencias = labelsAusencias.map(k => ausenciasPorMotivo[k]);
-        if(doughnutChart) doughnutChart.destroy();
-        const ctxDoughnut = document.getElementById("doughnutChart").getContext("2d");
-        doughnutChart = new Chart(ctxDoughnut, {
-            type: 'doughnut',
-            data: { labels: labelsAusencias, datasets: [{ data: dataAusencias, backgroundColor: ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-        });
-        
-        // Gráfico Barras: efetivo presente por função (buscar funcionários e cruzar com presentes)
-        const funcionariosSnap = await getDocs(funcionariosRef);
-        const funcMap = new Map();
-        funcionariosSnap.forEach(d => { funcMap.set(d.id, d.data()); });
-        const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0, "Interno":0 };
-        for(const p of pontosList) {
-            if(p.status === "Presente") {
-                const funcData = funcMap.get(p.funcionarioId);
-                if(funcData && contagemFuncao.hasOwnProperty(funcData.cargo)) contagemFuncao[funcData.cargo]++;
-                else if(funcData && !contagemFuncao[funcData.cargo]) contagemFuncao[funcData.cargo] = 1;
-            }
-        }
-        if(barChart) barChart.destroy();
-        const ctxBar = document.getElementById("barChart").getContext("2d");
-        barChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: { labels: Object.keys(contagemFuncao), datasets: [{ label: 'Presentes por Função', data: Object.values(contagemFuncao), backgroundColor: '#3b82f6', borderRadius: 8 }] },
-            options: { responsive: true, scales: { y: { beginAtZero: true, precision: 0 } } }
-        });
-    }
-    
-    // Reúne todas as atualizações globais
-    async function fullRefresh() {
-        await carregarSelectFuncionarios();
-        await atualizarDashboard();
-    }
-    window.refreshDashboard = atualizarDashboard; // para chamadas externas
-    
-    // Navegação entre abas + recarregar dashboard sempre que a aba dashboard for ativada, e limpeza de gráficos é feita na renderização.
-    function initTabs() {
-        const tabs = document.querySelectorAll("[data-tab]");
-        const contents = document.querySelectorAll(".tab-content");
-        tabs.forEach(tab => {
-            tab.addEventListener("click", async () => {
-                const targetId = tab.getAttribute("data-tab");
-                contents.forEach(c => c.classList.remove("active-tab"));
-                document.getElementById(targetId).classList.add("active-tab");
-                tabs.forEach(t => t.classList.remove("active"));
-                tab.classList.add("active");
-                if(targetId === "dashboard") {
-                    await atualizarDashboard();
+        try {
+            const hoje = getLocalDateStr();
+            const pontosQuery = query(pontosRef, where("data", "==", hoje));
+            const pontosSnap = await getDocs(pontosQuery);
+            let presentes = 0, ausentes = 0;
+            const ausenciasPorMotivo = { "AM":0, "LM":0, "Serviço externo":0, "Folga":0, "Férias":0 };
+            const pontosList = [];
+            
+            pontosSnap.forEach(doc => {
+                const p = doc.data();
+                pontosList.push(p);
+                if(p.status === "Presente") presentes++;
+                else if(p.status === "Ausente") {
+                    ausentes++;
+                    const motivo = p.motivo;
+                    if(motivo && ausenciasPorMotivo.hasOwnProperty(motivo)) ausenciasPorMotivo[motivo]++;
                 }
-                if(targetId === "ponto") await carregarSelectFuncionarios();
-                if(targetId === "ocorrencias") await carregarSelectFuncionarios();
+            });
+            
+            document.getElementById("presentesCount").innerText = presentes;
+            document.getElementById("ausentesCount").innerText = ausentes;
+            
+            const ocorrSnap = await getDocs(ocorrenciasRef);
+            document.getElementById("totalOcorrenciasCount").innerText = ocorrSnap.size;
+            
+            // Gráfico Doughnut
+            const labelsAusencias = Object.keys(ausenciasPorMotivo);
+            const dataAusencias = labelsAusencias.map(k => ausenciasPorMotivo[k]);
+            const ctxDoughnut = document.getElementById("doughnutChart").getContext("2d");
+            if(doughnutChart) doughnutChart.destroy();
+            doughnutChart = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: { labels: labelsAusencias, datasets: [{ data: dataAusencias, backgroundColor: ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+            
+            // Gráfico Barras
+            const funcionariosSnap = await getDocs(funcionariosRef);
+            const funcMap = new Map();
+            funcionariosSnap.forEach(d => { funcMap.set(d.id, d.data()); });
+            const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0, "Interno":0 };
+            
+            for(const p of pontosList) {
+                if(p.status === "Presente") {
+                    const funcData = funcMap.get(p.funcionarioId);
+                    if(funcData && contagemFuncao.hasOwnProperty(funcData.cargo)) contagemFuncao[funcData.cargo]++;
+                }
+            }
+            
+            const ctxBar = document.getElementById("barChart").getContext("2d");
+            if(barChart) barChart.destroy();
+            barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: { labels: Object.keys(contagemFuncao), datasets: [{ label: 'Presentes por Função', data: Object.values(contagemFuncao), backgroundColor: '#3b82f6', borderRadius: 8 }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true, precision: 0 } } }
+            });
+        } catch(error) {
+            console.error("Erro ao atualizar dashboard:", error);
+        }
+    }
+    
+    // NAVEGAÇÃO ENTRE ABAS (CORRIGIDA)
+    function initNavigation() {
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Função para trocar de aba
+        function switchTab(tabId) {
+            // Esconder todos os conteúdos
+            tabContents.forEach(content => {
+                content.classList.remove('active-tab');
+            });
+            
+            // Mostrar o conteúdo selecionado
+            const selectedContent = document.getElementById(tabId);
+            if(selectedContent) {
+                selectedContent.classList.add('active-tab');
+            }
+            
+            // Atualizar estilo dos itens do menu
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                const itemTab = item.getAttribute('data-tab');
+                if(itemTab === tabId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        // Adicionar evento de clique para cada item do menu
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', async (e) => {
+                const tabId = item.getAttribute('data-tab');
+                if(tabId) {
+                    switchTab(tabId);
+                    
+                    // Se for a aba dashboard, atualizar os dados
+                    if(tabId === 'dashboard') {
+                        await atualizarDashboard();
+                    }
+                    
+                    // Se for ponto ou ocorrências, recarregar selects
+                    if(tabId === 'ponto' || tabId === 'ocorrencias') {
+                        await carregarSelectFuncionarios();
+                    }
+                }
             });
         });
-        // Ativar dashboard inicialmente
-        document.querySelector("[data-tab='dashboard']").classList.add("active");
+        
+        // Ativar dashboard por padrão
+        switchTab('dashboard');
     }
     
-    // listener para snapshot em tempo real (opcional, mas atualiza dashboard se houver mudanças no ponto/ocorrencias)
-    function subscribeRealtime() {
-        onSnapshot(pontosRef, () => { if(document.querySelector("[data-tab='dashboard'].active")) atualizarDashboard(); });
-        onSnapshot(ocorrenciasRef, () => { if(document.querySelector("[data-tab='dashboard'].active")) atualizarDashboard(); });
-        onSnapshot(funcionariosRef, () => { carregarSelectFuncionarios(); if(document.querySelector("[data-tab='dashboard'].active")) atualizarDashboard(); });
-    }
-    
-    // Configura estado inicial
-    (async function init() {
-        await fullRefresh();
-        initTabs();
-        subscribeRealtime();
-        // Condicional inicial motivo ausência escondido
-        document.getElementById("motivoAusenciaDiv").classList.add("hidden");
-        // Setar abrangencia individual: campo visível
-        document.getElementById("campoFuncOcorrencia").classList.remove("hidden");
-        // Popular selects novamente
+    // Inicializar tudo
+    async function init() {
         await carregarSelectFuncionarios();
-    })();
+        await atualizarDashboard();
+        initNavigation();
+        
+        // Configurar listeners em tempo real
+        onSnapshot(pontosRef, async () => {
+            const activeTab = document.querySelector('.tab-content.active-tab');
+            if(activeTab && activeTab.id === 'dashboard') {
+                await atualizarDashboard();
+            }
+        });
+        
+        onSnapshot(ocorrenciasRef, async () => {
+            const activeTab = document.querySelector('.tab-content.active-tab');
+            if(activeTab && activeTab.id === 'dashboard') {
+                await atualizarDashboard();
+            }
+        });
+        
+        onSnapshot(funcionariosRef, async () => {
+            await carregarSelectFuncionarios();
+            const activeTab = document.querySelector('.tab-content.active-tab');
+            if(activeTab && activeTab.id === 'dashboard') {
+                await atualizarDashboard();
+            }
+        });
+        
+        // Configurar estado inicial dos campos condicionais
+        document.getElementById("motivoAusenciaDiv").classList.add("hidden");
+        document.getElementById("campoFuncOcorrencia").classList.remove("hidden");
+    }
+    
+    // Executar inicialização
+    init();
 </script>
 </body>
 </html>
