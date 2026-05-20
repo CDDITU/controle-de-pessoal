@@ -122,7 +122,7 @@
                     <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Nome Completo *</label><input type="text" id="nomeFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2"></div>
                     <div class="mb-6"><label class="block text-gray-700 font-medium mb-1">Cargo/Função *</label>
                         <select id="cargoFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
-                            <option value="">Selecione</option><option>Motorista</option><option>Motociclista</option><option>Ciclista</option><option>Interno</option>
+                            <option value="">Selecione</option><option>Motorista</option><option>Motociclista</option><option>Ciclista</option><option>Interno</option><option>Pedestre</option><option>Gestão</option>
                         </select>
                     </div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"><i class="fas fa-save mr-2"></i>Salvar Funcionário</button>
@@ -367,7 +367,7 @@
             const funcionariosSnap = await getDocs(funcionariosRef);
             const funcMap = new Map();
             funcionariosSnap.forEach(d => { funcMap.set(d.id, d.data()); });
-            const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0, "Interno":0 };
+            const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0,"Pedestre":0,"Gestão":0, "Interno":0 };
             
             for(const p of pontosList) {
                 if(p.status === "Presente") {
