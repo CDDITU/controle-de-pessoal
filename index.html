@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Firebase Modular SDK v10 (CDN) -->
+    <!-- Firebase Modular SDK v10 -->
     <script type="importmap">
         {
             "imports": {
@@ -21,8 +21,6 @@
     <style>
         * { font-family: 'Inter', sans-serif; }
         body { background: #f3f4f6; }
-        .transition-sidebar { transition: all 0.2s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 20px -12px rgba(0,0,0,0.15); }
         .sidebar-item.active { 
             background-color: #e0e7ff; 
             color: #1e3a8a; 
@@ -45,13 +43,14 @@
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
         .tab-content { display: none; }
         .tab-content.active-tab { display: block; }
-        input:focus, select:focus, textarea:focus { ring: 2px solid #3b82f6; border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+        .historico-row:hover { background-color: #f9fafb; transition: 0.2s; }
+        .filter-active { background-color: #dbeafe; border-color: #3b82f6; }
     </style>
 </head>
 <body class="bg-gray-50">
 
 <div class="flex flex-col md:flex-row min-h-screen">
-    <!-- SIDEBAR FIXA -->
+    <!-- SIDEBAR -->
     <aside class="w-full md:w-72 bg-white shadow-lg md:min-h-screen border-r border-gray-200 z-10">
         <div class="p-6 border-b border-gray-100 flex items-center gap-3">
             <i class="fas fa-truck-fast text-2xl text-blue-600"></i>
@@ -70,6 +69,9 @@
             <div data-tab="ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                 <i class="fas fa-exclamation-triangle w-5"></i> <span>Ocorrências</span>
             </div>
+            <div data-tab="historico" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                <i class="fas fa-history w-5"></i> <span>Histórico</span>
+            </div>
         </nav>
         <div class="absolute bottom-6 left-6 text-xs text-gray-400 hidden md:block">
             <i class="fas fa-database"></i> Firestore实时同步
@@ -84,7 +86,6 @@
                 <h2 class="text-2xl font-bold text-gray-800">Painel Operacional</h2>
                 <p class="text-gray-500">Visão geral de hoje</p>
             </div>
-            <!-- cards resumo -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
                 <div class="bg-white rounded-xl shadow-sm p-5 border-l-8 border-green-500 card-hover">
                     <div class="flex justify-between"><span class="text-gray-500">Presentes Hoje</span><i class="fas fa-check-circle text-green-500 text-xl"></i></div>
@@ -99,7 +100,6 @@
                     <p class="text-3xl font-bold mt-2" id="totalOcorrenciasCount">0</p>
                 </div>
             </div>
-            <!-- dois gráficos lado a lado -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white p-5 rounded-2xl shadow-sm">
                     <h3 class="font-semibold text-gray-700 mb-3"><i class="fas fa-chart-simple mr-2"></i>Distribuição de Ausências</h3>
@@ -112,7 +112,7 @@
             </div>
         </div>
 
-        <!-- CADASTRO DE FUNCIONÁRIO -->
+        <!-- CADASTRO -->
         <div id="cadastro" class="tab-content">
             <div class="bg-white rounded-2xl shadow-sm p-6 max-w-2xl">
                 <h2 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-id-card text-blue-500 mr-2"></i>Cadastrar Funcionário</h2>
@@ -122,7 +122,7 @@
                     <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Nome Completo *</label><input type="text" id="nomeFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2"></div>
                     <div class="mb-6"><label class="block text-gray-700 font-medium mb-1">Cargo/Função *</label>
                         <select id="cargoFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
-                            <option value="">Selecione</option><option>Motorista</option><option>Motociclista</option><option>Ciclista</option><option>Interno</option><option>Pedestre</option><option>Gestão</option>
+                            <option value="">Selecione</option><option>Motorista</option><option>Motociclista</option><option>Ciclista</option><option>Interno</option>
                         </select>
                     </div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"><i class="fas fa-save mr-2"></i>Salvar Funcionário</button>
@@ -130,13 +130,13 @@
             </div>
         </div>
 
-        <!-- REGISTRO DE PONTO -->
+        <!-- PONTO -->
         <div id="ponto" class="tab-content">
             <div class="bg-white rounded-2xl shadow-sm p-6 max-w-2xl">
                 <h2 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-clock text-green-600 mr-2"></i>Registro de Ponto Diário</h2>
-                <p class="text-gray-400 text-sm mb-6">Baseado em data atual (local) | ID: DATA_MATRICULA</p>
+                <p class="text-gray-400 text-sm mb-6">Baseado em data atual | ID: DATA_MATRICULA</p>
                 <form id="formPonto">
-                    <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Funcionário *</label><select id="selectFuncionarioPonto" required class="w-full border border-gray-300 rounded-lg px-4 py-2"><option value="">Carregando funcionários...</option></select></div>
+                    <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Funcionário *</label><select id="selectFuncionarioPonto" required class="w-full border border-gray-300 rounded-lg px-4 py-2"><option value="">Carregando...</option></select></div>
                     <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Status de Presença *</label>
                         <select id="statusPresenca" required class="w-full border border-gray-300 rounded-lg px-4 py-2"><option value="Presente">Presente</option><option value="Ausente">Ausente</option></select>
                     </div>
@@ -146,7 +146,7 @@
                             <option value="AM">AM (Atestado Médico)</option><option value="LM">LM (Licença Médica)</option><option value="Serviço externo">Serviço externo</option><option value="Folga">Folga</option><option value="Férias">Férias</option>
                         </select>
                     </div>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"><i class="fas fa-check-circle mr-2"></i>Registrar / Atualizar Ponto</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"><i class="fas fa-check-circle mr-2"></i>Registrar Ponto</button>
                 </form>
             </div>
         </div>
@@ -160,9 +160,122 @@
                         <select id="abrangencia" required class="w-full border border-gray-300 rounded-lg px-4 py-2"><option value="Individual">Individual</option><option value="Unidade">Unidade</option></select>
                     </div>
                     <div id="campoFuncOcorrencia" class="mb-4"><label class="block text-gray-700 font-medium mb-1">Funcionário *</label><select id="selectFuncOcorrencia" class="w-full border border-gray-300 rounded-lg px-4 py-2"><option value="">Carregando...</option></select></div>
-                    <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Descrição Detalhada *</label><textarea id="descricaoOcorrencia" rows="4" required class="w-full border border-gray-300 rounded-lg px-4 py-2" placeholder="Descreva o problema, conduta, atrasos..."></textarea></div>
+                    <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Descrição *</label><textarea id="descricaoOcorrencia" rows="4" required class="w-full border border-gray-300 rounded-lg px-4 py-2" placeholder="Descreva o problema..."></textarea></div>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"><i class="fas fa-save mr-2"></i>Salvar Ocorrência</button>
                 </form>
+            </div>
+        </div>
+
+        <!-- HISTÓRICO - NOVA ABA -->
+        <div id="historico" class="tab-content">
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-history text-blue-500 mr-2"></i>Histórico de Presenças</h2>
+                        <p class="text-gray-500 text-sm">Consulta de registros de ponto por período</p>
+                    </div>
+                    <button id="btnExportarCSV" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-download mr-2"></i>Exportar CSV
+                    </button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
+                        <select id="filtroFuncionario" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Todos os funcionários</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                        <input type="date" id="filtroDataInicio" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                        <input type="date" id="filtroDataFim" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="filtroStatus" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                            <option value="">Todos</option>
+                            <option value="Presente">Presente</option>
+                            <option value="Ausente">Ausente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botões de ação rápida -->
+                <div class="flex gap-2 mb-6 flex-wrap">
+                    <button id="btnFiltrar" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-search mr-2"></i>Filtrar
+                    </button>
+                    <button id="btnLimparFiltros" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-eraser mr-2"></i>Limpar Filtros
+                    </button>
+                    <button id="btnSemanaAtual" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-calendar-week mr-2"></i>Semana Atual
+                    </button>
+                    <button id="btnMesAtual" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
+                        <i class="fas fa-calendar-alt mr-2"></i>Mês Atual
+                    </button>
+                </div>
+
+                <!-- Estatísticas do filtro -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Total de Registros</p>
+                            <p class="text-2xl font-bold text-gray-800" id="totalRegistros">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Presentes</p>
+                            <p class="text-2xl font-bold text-green-600" id="totalPresentesFiltro">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Ausentes</p>
+                            <p class="text-2xl font-bold text-red-600" id="totalAusentesFiltro">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Taxa de Presença</p>
+                            <p class="text-2xl font-bold text-blue-600" id="taxaPresenca">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de resultados -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Funcionário</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matrícula</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaHistorico" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-search fa-2x mb-2 block"></i>
+                                    Selecione os filtros para consultar o histórico
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginação -->
+                <div class="flex justify-between items-center mt-6">
+                    <p class="text-sm text-gray-500" id="infoPagina"></p>
+                    <div class="flex gap-2">
+                        <button id="btnAnterior" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Anterior</button>
+                        <span id="paginaAtual" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">1</span>
+                        <button id="btnProximo" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Próximo</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -170,9 +283,9 @@
 
 <script type="module">
     import { initializeApp } from "firebase/app";
-    import { getFirestore, collection, doc, setDoc, getDocs, query, where, onSnapshot } from "firebase/firestore";
+    import { getFirestore, collection, doc, setDoc, getDocs, query, where, getDoc, orderBy } from "firebase/firestore";
 
-    // ================= CONFIGURAÇÃO FIREBASE (SUBSTITUIR CREDENCIAIS) =================
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyAxdNT93FsZlW_w0CiuH2XTYYkCJfe-McU",
         authDomain: "controle-de-pessoal-dab62.firebaseapp.com",
@@ -181,65 +294,61 @@
         messagingSenderId: "144385976152",
         appId: "1:144385976152:web:3638be237a1187fef2e72d"
     };
-    
-    // Inicializar Firebase
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     
-    // Referências coleções
     const funcionariosRef = collection(db, "funcionarios");
     const pontosRef = collection(db, "pontos");
     const ocorrenciasRef = collection(db, "ocorrencias");
 
-    // Variáveis globais gráficos
     let doughnutChart = null;
     let barChart = null;
-    
-    // Helper: notificações toast
+    let historicoCache = [];
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+
+    // Helpers
     function showToast(message, type = "success") {
         const toastDiv = document.createElement("div");
         toastDiv.className = `toast-notify bg-${type === "success" ? "green" : "red"}-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-3`;
         toastDiv.innerHTML = `<i class="fas fa-${type === "success" ? "check-circle" : "exclamation-triangle"}"></i><span>${message}</span>`;
         document.body.appendChild(toastDiv);
-        setTimeout(() => { toastDiv.remove(); }, 3500);
+        setTimeout(() => toastDiv.remove(), 3500);
     }
-    
-    // Obtém data local no formato AAAA-MM-DD
+
     function getLocalDateStr() {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
-    
-    // Carrega selects de funcionários
+
+    function formatarDataBR(dataISO) {
+        if(!dataISO) return '-';
+        const partes = dataISO.split('-');
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    // Carregar selects
     async function carregarSelectFuncionarios() {
-        try {
-            const snapshot = await getDocs(funcionariosRef);
-            const funcionarios = [];
-            snapshot.forEach(doc => { funcionarios.push({ id: doc.id, ...doc.data() }); });
-            
-            const selectPonto = document.getElementById("selectFuncionarioPonto");
-            const selectOcorr = document.getElementById("selectFuncOcorrencia");
-            
-            if(selectPonto) {
-                selectPonto.innerHTML = '<option value="">Selecione funcionário</option>';
-                funcionarios.forEach(f => { selectPonto.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
+        const snapshot = await getDocs(funcionariosRef);
+        const funcionarios = [];
+        snapshot.forEach(doc => funcionarios.push({ id: doc.id, ...doc.data() }));
+        
+        const selects = ["selectFuncionarioPonto", "selectFuncOcorrencia", "filtroFuncionario"];
+        selects.forEach(id => {
+            const select = document.getElementById(id);
+            if(select) {
+                select.innerHTML = '<option value="">Selecione funcionário</option>';
+                funcionarios.forEach(f => {
+                    select.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`;
+                });
             }
-            if(selectOcorr) {
-                selectOcorr.innerHTML = '<option value="">Selecione funcionário</option>';
-                funcionarios.forEach(f => { selectOcorr.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`; });
-            }
-            return funcionarios;
-        } catch(error) {
-            console.error("Erro ao carregar funcionários:", error);
-            return [];
-        }
+        });
+        return funcionarios;
     }
-    
-    // CADASTRO FUNCIONÁRIO
-    document.getElementById("formFuncionario").addEventListener("submit", async (e) => {
+
+    // Cadastro
+    document.getElementById("formFuncionario")?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const matricula = document.getElementById("matricula").value.trim();
         const nome = document.getElementById("nomeFunc").value.trim();
@@ -247,15 +356,15 @@
         if(!matricula || !nome || !cargo) { showToast("Preencha todos os campos!", "error"); return; }
         try {
             await setDoc(doc(db, "funcionarios", matricula), { nome, cargo, matricula });
-            showToast(`Funcionário ${nome} cadastrado com sucesso!`);
+            showToast(`Funcionário ${nome} cadastrado!`);
             document.getElementById("formFuncionario").reset();
             await carregarSelectFuncionarios();
             await atualizarDashboard();
-        } catch(err) { showToast("Erro ao cadastrar: "+err.message, "error"); }
+        } catch(err) { showToast("Erro: "+err.message, "error"); }
     });
-    
-    // REGISTRO PONTO
-    document.getElementById("formPonto").addEventListener("submit", async (e) => {
+
+    // Ponto
+    document.getElementById("formPonto")?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const funcionarioId = document.getElementById("selectFuncionarioPonto").value;
         if(!funcionarioId) { showToast("Selecione um funcionário!", "error"); return; }
@@ -263,218 +372,301 @@
         let motivo = null;
         if(status === "Ausente") {
             motivo = document.getElementById("motivoAusencia").value;
-            if(!motivo) { showToast("Selecione o motivo da ausência!", "error"); return; }
+            if(!motivo) { showToast("Selecione o motivo!", "error"); return; }
         }
         const dataAtual = getLocalDateStr();
         const docId = `${dataAtual}_${funcionarioId}`;
-        const pontoData = {
-            data: dataAtual,
-            funcionarioId,
-            status,
-            motivo: motivo || null,
-            timestamp: new Date()
-        };
+        const pontoData = { data: dataAtual, funcionarioId, status, timestamp: new Date() };
+        if(motivo) pontoData.motivo = motivo;
+        
         try {
             await setDoc(doc(db, "pontos", docId), pontoData);
-            showToast(`Ponto registrado/atualizado para ${dataAtual}`);
+            showToast(`Ponto registrado para ${dataAtual}!`);
             await atualizarDashboard();
-        } catch(err) { showToast("Erro no ponto: "+err.message, "error"); }
+        } catch(err) { showToast("Erro: "+err.message, "error"); }
     });
-    
-    // OCORRÊNCIAS
-    document.getElementById("formOcorrencia").addEventListener("submit", async (e) => {
+
+    // Ocorrências
+    document.getElementById("formOcorrencia")?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const abrangencia = document.getElementById("abrangencia").value;
-        let funcionarioId = null;
-        if(abrangencia === "Individual") {
-            funcionarioId = document.getElementById("selectFuncOcorrencia").value;
-            if(!funcionarioId) { showToast("Selecione o funcionário!", "error"); return; }
-        } else {
-            funcionarioId = "UNIDADE";
-        }
+        let funcionarioId = abrangencia === "Individual" ? document.getElementById("selectFuncOcorrencia").value : "UNIDADE";
+        if(abrangencia === "Individual" && !funcionarioId) { showToast("Selecione o funcionário!", "error"); return; }
         const descricao = document.getElementById("descricaoOcorrencia").value.trim();
         if(!descricao) { showToast("Descreva a ocorrência!", "error"); return; }
-        const novaOcorrencia = {
-            abrangencia,
-            funcionarioId,
-            descricao,
-            dataRegistro: getLocalDateStr(),
-            timestamp: new Date()
-        };
+        
         try {
-            const docRef = doc(ocorrenciasRef);
-            await setDoc(docRef, novaOcorrencia);
-            showToast("Ocorrência registrada com sucesso!");
+            await setDoc(doc(ocorrenciasRef), { abrangencia, funcionarioId, descricao, dataRegistro: getLocalDateStr(), timestamp: new Date() });
+            showToast("Ocorrência registrada!");
             document.getElementById("formOcorrencia").reset();
-            document.getElementById("descricaoOcorrencia").value = "";
             document.getElementById("abrangencia").dispatchEvent(new Event("change"));
             await atualizarDashboard();
-        } catch(err) { showToast("Erro ao salvar ocorrência: "+err.message, "error"); }
+        } catch(err) { showToast("Erro: "+err.message, "error"); }
     });
+
+    // Dashboard
+    async function atualizarDashboard() {
+        const hoje = getLocalDateStr();
+        const pontosQuery = query(pontosRef, where("data", "==", hoje));
+        const pontosSnap = await getDocs(pontosQuery);
+        let presentes = 0, ausentes = 0;
+        const ausenciasPorMotivo = { "AM":0, "LM":0, "Serviço externo":0, "Folga":0, "Férias":0 };
+        const pontosList = [];
+        
+        pontosSnap.forEach(doc => {
+            const p = doc.data();
+            pontosList.push(p);
+            if(p.status === "Presente") presentes++;
+            else if(p.status === "Ausente") {
+                ausentes++;
+                if(p.motivo && ausenciasPorMotivo.hasOwnProperty(p.motivo)) ausenciasPorMotivo[p.motivo]++;
+            }
+        });
+        
+        document.getElementById("presentesCount").innerText = presentes;
+        document.getElementById("ausentesCount").innerText = ausentes;
+        
+        const ocorrSnap = await getDocs(ocorrenciasRef);
+        document.getElementById("totalOcorrenciasCount").innerText = ocorrSnap.size;
+        
+        const ctxDoughnut = document.getElementById("doughnutChart").getContext("2d");
+        if(doughnutChart) doughnutChart.destroy();
+        doughnutChart = new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: { labels: Object.keys(ausenciasPorMotivo), datasets: [{ data: Object.values(ausenciasPorMotivo), backgroundColor: ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6'], borderWidth: 0 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+        
+        const funcionariosSnap = await getDocs(funcionariosRef);
+        const funcMap = new Map();
+        funcionariosSnap.forEach(d => funcMap.set(d.id, d.data()));
+        const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0, "Interno":0 };
+        for(const p of pontosList) {
+            if(p.status === "Presente") {
+                const funcData = funcMap.get(p.funcionarioId);
+                if(funcData && contagemFuncao.hasOwnProperty(funcData.cargo)) contagemFuncao[funcData.cargo]++;
+            }
+        }
+        
+        const ctxBar = document.getElementById("barChart").getContext("2d");
+        if(barChart) barChart.destroy();
+        barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: { labels: Object.keys(contagemFuncao), datasets: [{ label: 'Presentes por Função', data: Object.values(contagemFuncao), backgroundColor: '#3b82f6', borderRadius: 8 }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true, precision: 0 } } }
+        });
+    }
+
+    // HISTÓRICO - Buscar dados com filtros
+    async function buscarHistorico() {
+        const funcionarioId = document.getElementById("filtroFuncionario").value;
+        const dataInicio = document.getElementById("filtroDataInicio").value;
+        const dataFim = document.getElementById("filtroDataFim").value;
+        const statusFiltro = document.getElementById("filtroStatus").value;
+        
+        let q = query(pontosRef, orderBy("data", "desc"));
+        const snapshot = await getDocs(q);
+        const funcionariosMap = new Map();
+        const funcSnapshot = await getDocs(funcionariosRef);
+        funcSnapshot.forEach(doc => funcionariosMap.set(doc.id, doc.data()));
+        
+        let registros = [];
+        snapshot.forEach(doc => {
+            const ponto = doc.data();
+            let incluir = true;
+            
+            if(funcionarioId && ponto.funcionarioId !== funcionarioId) incluir = false;
+            if(dataInicio && ponto.data < dataInicio) incluir = false;
+            if(dataFim && ponto.data > dataFim) incluir = false;
+            if(statusFiltro && ponto.status !== statusFiltro) incluir = false;
+            
+            if(incluir) {
+                const funcionario = funcionariosMap.get(ponto.funcionarioId) || { nome: "Desconhecido", cargo: "-" };
+                registros.push({
+                    id: doc.id,
+                    data: ponto.data,
+                    funcionarioId: ponto.funcionarioId,
+                    funcionarioNome: funcionario.nome,
+                    cargo: funcionario.cargo,
+                    status: ponto.status,
+                    motivo: ponto.motivo || "-"
+                });
+            }
+        });
+        
+        historicoCache = registros;
+        paginaAtual = 1;
+        renderizarTabela();
+        atualizarEstatisticas(registros);
+    }
+    
+    function renderizarTabela() {
+        const inicio = (paginaAtual - 1) * itensPorPagina;
+        const fim = inicio + itensPorPagina;
+        const registrosPagina = historicoCache.slice(inicio, fim);
+        const tbody = document.getElementById("tabelaHistorico");
+        
+        if(registrosPagina.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-search fa-2x mb-2 block"></i>Nenhum registro encontrado</td></tr>';
+            document.getElementById("btnAnterior").disabled = true;
+            document.getElementById("btnProximo").disabled = true;
+            document.getElementById("infoPagina").innerText = "";
+            return;
+        }
+        
+        tbody.innerHTML = registrosPagina.map(reg => `
+            <tr class="historico-row">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatarDataBR(reg.data)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${reg.funcionarioNome}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${reg.funcionarioId}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${reg.cargo}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full ${reg.status === 'Presente' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${reg.status === 'Presente' ? '<i class="fas fa-check-circle mr-1"></i>' : '<i class="fas fa-times-circle mr-1"></i>'} ${reg.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${reg.motivo}</td>
+            </tr>
+        `).join('');
+        
+        const totalPaginas = Math.ceil(historicoCache.length / itensPorPagina);
+        document.getElementById("btnAnterior").disabled = paginaAtual === 1;
+        document.getElementById("btnProximo").disabled = paginaAtual === totalPaginas;
+        document.getElementById("paginaAtual").innerText = paginaAtual;
+        document.getElementById("infoPagina").innerText = `Mostrando ${inicio+1} a ${Math.min(fim, historicoCache.length)} de ${historicoCache.length} registros`;
+    }
+    
+    function atualizarEstatisticas(registros) {
+        const total = registros.length;
+        const presentes = registros.filter(r => r.status === "Presente").length;
+        const ausentes = registros.filter(r => r.status === "Ausente").length;
+        const taxa = total > 0 ? ((presentes / total) * 100).toFixed(1) : 0;
+        
+        document.getElementById("totalRegistros").innerText = total;
+        document.getElementById("totalPresentesFiltro").innerText = presentes;
+        document.getElementById("totalAusentesFiltro").innerText = ausentes;
+        document.getElementById("taxaPresenca").innerText = `${taxa}%`;
+    }
+    
+    function limparFiltros() {
+        document.getElementById("filtroFuncionario").value = "";
+        document.getElementById("filtroDataInicio").value = "";
+        document.getElementById("filtroDataFim").value = "";
+        document.getElementById("filtroStatus").value = "";
+        buscarHistorico();
+    }
+    
+    function setSemanaAtual() {
+        const hoje = new Date();
+        const primeiroDia = new Date(hoje);
+        primeiroDia.setDate(hoje.getDate() - hoje.getDay());
+        const ultimoDia = new Date(primeiroDia);
+        ultimoDia.setDate(primeiroDia.getDate() + 6);
+        
+        document.getElementById("filtroDataInicio").value = primeiroDia.toISOString().split('T')[0];
+        document.getElementById("filtroDataFim").value = ultimoDia.toISOString().split('T')[0];
+        buscarHistorico();
+    }
+    
+    function setMesAtual() {
+        const hoje = new Date();
+        const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+        
+        document.getElementById("filtroDataInicio").value = primeiroDia.toISOString().split('T')[0];
+        document.getElementById("filtroDataFim").value = ultimoDia.toISOString().split('T')[0];
+        buscarHistorico();
+    }
+    
+    function exportarCSV() {
+        if(historicoCache.length === 0) {
+            showToast("Nenhum dado para exportar!", "error");
+            return;
+        }
+        
+        const headers = ["Data", "Funcionário", "Matrícula", "Cargo", "Status", "Motivo"];
+        const rows = historicoCache.map(r => [
+            r.data, r.funcionarioNome, r.funcionarioId, r.cargo, r.status, r.motivo
+        ]);
+        
+        const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", `historico_ponto_${getLocalDateStr()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Exportado com sucesso!");
+    }
     
     // Condicionais UI
-    document.getElementById("statusPresenca").addEventListener("change", (e) => {
+    document.getElementById("statusPresenca")?.addEventListener("change", (e) => {
         const divMotivo = document.getElementById("motivoAusenciaDiv");
         if(e.target.value === "Ausente") divMotivo.classList.remove("hidden");
         else divMotivo.classList.add("hidden");
     });
     
-    document.getElementById("abrangencia").addEventListener("change", (e) => {
+    document.getElementById("abrangencia")?.addEventListener("change", (e) => {
         const campoFunc = document.getElementById("campoFuncOcorrencia");
         if(e.target.value === "Individual") campoFunc.classList.remove("hidden");
         else campoFunc.classList.add("hidden");
     });
     
-    // DASHBOARD: atualizar cards e gráficos
-    async function atualizarDashboard() {
-        try {
-            const hoje = getLocalDateStr();
-            const pontosQuery = query(pontosRef, where("data", "==", hoje));
-            const pontosSnap = await getDocs(pontosQuery);
-            let presentes = 0, ausentes = 0;
-            const ausenciasPorMotivo = { "AM":0, "LM":0, "Serviço externo":0, "Folga":0, "Férias":0 };
-            const pontosList = [];
-            
-            pontosSnap.forEach(doc => {
-                const p = doc.data();
-                pontosList.push(p);
-                if(p.status === "Presente") presentes++;
-                else if(p.status === "Ausente") {
-                    ausentes++;
-                    const motivo = p.motivo;
-                    if(motivo && ausenciasPorMotivo.hasOwnProperty(motivo)) ausenciasPorMotivo[motivo]++;
-                }
-            });
-            
-            document.getElementById("presentesCount").innerText = presentes;
-            document.getElementById("ausentesCount").innerText = ausentes;
-            
-            const ocorrSnap = await getDocs(ocorrenciasRef);
-            document.getElementById("totalOcorrenciasCount").innerText = ocorrSnap.size;
-            
-            // Gráfico Doughnut
-            const labelsAusencias = Object.keys(ausenciasPorMotivo);
-            const dataAusencias = labelsAusencias.map(k => ausenciasPorMotivo[k]);
-            const ctxDoughnut = document.getElementById("doughnutChart").getContext("2d");
-            if(doughnutChart) doughnutChart.destroy();
-            doughnutChart = new Chart(ctxDoughnut, {
-                type: 'doughnut',
-                data: { labels: labelsAusencias, datasets: [{ data: dataAusencias, backgroundColor: ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
-            });
-            
-            // Gráfico Barras
-            const funcionariosSnap = await getDocs(funcionariosRef);
-            const funcMap = new Map();
-            funcionariosSnap.forEach(d => { funcMap.set(d.id, d.data()); });
-            const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0,"Pedestre":0,"Gestão":0, "Interno":0 };
-            
-            for(const p of pontosList) {
-                if(p.status === "Presente") {
-                    const funcData = funcMap.get(p.funcionarioId);
-                    if(funcData && contagemFuncao.hasOwnProperty(funcData.cargo)) contagemFuncao[funcData.cargo]++;
-                }
-            }
-            
-            const ctxBar = document.getElementById("barChart").getContext("2d");
-            if(barChart) barChart.destroy();
-            barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: { labels: Object.keys(contagemFuncao), datasets: [{ label: 'Presentes por Função', data: Object.values(contagemFuncao), backgroundColor: '#3b82f6', borderRadius: 8 }] },
-                options: { responsive: true, scales: { y: { beginAtZero: true, precision: 0 } } }
-            });
-        } catch(error) {
-            console.error("Erro ao atualizar dashboard:", error);
-        }
-    }
-    
-    // NAVEGAÇÃO ENTRE ABAS (CORRIGIDA)
+    // Navegação entre abas
     function initNavigation() {
         const sidebarItems = document.querySelectorAll('.sidebar-item');
         const tabContents = document.querySelectorAll('.tab-content');
         
-        // Função para trocar de aba
         function switchTab(tabId) {
-            // Esconder todos os conteúdos
-            tabContents.forEach(content => {
-                content.classList.remove('active-tab');
-            });
-            
-            // Mostrar o conteúdo selecionado
+            tabContents.forEach(content => content.classList.remove('active-tab'));
             const selectedContent = document.getElementById(tabId);
-            if(selectedContent) {
-                selectedContent.classList.add('active-tab');
-            }
+            if(selectedContent) selectedContent.classList.add('active-tab');
             
-            // Atualizar estilo dos itens do menu
             sidebarItems.forEach(item => {
                 item.classList.remove('active');
-                const itemTab = item.getAttribute('data-tab');
-                if(itemTab === tabId) {
-                    item.classList.add('active');
-                }
+                if(item.getAttribute('data-tab') === tabId) item.classList.add('active');
             });
+            
+            if(tabId === 'dashboard') atualizarDashboard();
+            if(tabId === 'historico') buscarHistorico();
+            if(tabId === 'ponto' || tabId === 'ocorrencias') carregarSelectFuncionarios();
         }
         
-        // Adicionar evento de clique para cada item do menu
         sidebarItems.forEach(item => {
-            item.addEventListener('click', async (e) => {
+            item.addEventListener('click', () => {
                 const tabId = item.getAttribute('data-tab');
-                if(tabId) {
-                    switchTab(tabId);
-                    
-                    // Se for a aba dashboard, atualizar os dados
-                    if(tabId === 'dashboard') {
-                        await atualizarDashboard();
-                    }
-                    
-                    // Se for ponto ou ocorrências, recarregar selects
-                    if(tabId === 'ponto' || tabId === 'ocorrencias') {
-                        await carregarSelectFuncionarios();
-                    }
-                }
+                if(tabId) switchTab(tabId);
             });
         });
         
-        // Ativar dashboard por padrão
         switchTab('dashboard');
     }
     
-    // Inicializar tudo
+    // Eventos do histórico
+    document.getElementById("btnFiltrar")?.addEventListener("click", buscarHistorico);
+    document.getElementById("btnLimparFiltros")?.addEventListener("click", limparFiltros);
+    document.getElementById("btnSemanaAtual")?.addEventListener("click", setSemanaAtual);
+    document.getElementById("btnMesAtual")?.addEventListener("click", setMesAtual);
+    document.getElementById("btnAnterior")?.addEventListener("click", () => { if(paginaAtual > 1) { paginaAtual--; renderizarTabela(); } });
+    document.getElementById("btnProximo")?.addEventListener("click", () => { if(paginaAtual < Math.ceil(historicoCache.length / itensPorPagina)) { paginaAtual++; renderizarTabela(); } });
+    document.getElementById("btnExportarCSV")?.addEventListener("click", exportarCSV);
+    
+    // Inicialização
     async function init() {
         await carregarSelectFuncionarios();
         await atualizarDashboard();
         initNavigation();
-        
-        // Configurar listeners em tempo real
-        onSnapshot(pontosRef, async () => {
-            const activeTab = document.querySelector('.tab-content.active-tab');
-            if(activeTab && activeTab.id === 'dashboard') {
-                await atualizarDashboard();
-            }
-        });
-        
-        onSnapshot(ocorrenciasRef, async () => {
-            const activeTab = document.querySelector('.tab-content.active-tab');
-            if(activeTab && activeTab.id === 'dashboard') {
-                await atualizarDashboard();
-            }
-        });
-        
-        onSnapshot(funcionariosRef, async () => {
-            await carregarSelectFuncionarios();
-            const activeTab = document.querySelector('.tab-content.active-tab');
-            if(activeTab && activeTab.id === 'dashboard') {
-                await atualizarDashboard();
-            }
-        });
-        
-        // Configurar estado inicial dos campos condicionais
-        document.getElementById("motivoAusenciaDiv").classList.add("hidden");
-        document.getElementById("campoFuncOcorrencia").classList.remove("hidden");
+        // Definir datas padrão para histórico (últimos 30 dias)
+        const hoje = new Date();
+        const trintaDiasAtras = new Date(hoje);
+        trintaDiasAtras.setDate(hoje.getDate() - 30);
+        document.getElementById("filtroDataInicio").value = trintaDiasAtras.toISOString().split('T')[0];
+        document.getElementById("filtroDataFim").value = hoje.toISOString().split('T')[0];
     }
     
-    // Executar inicialização
     init();
 </script>
 </body>
