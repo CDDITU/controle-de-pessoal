@@ -100,14 +100,17 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        /* Estilo para o link do quadro de avisos no menu lateral */
-        .sidebar-item.quadro-avisos-link {
+        /* Estilo para os links externos no menu lateral */
+        .sidebar-item.external-link {
             border-top: 1px solid #e5e7eb;
             margin-top: 8px;
             padding-top: 12px;
         }
-        .sidebar-item.quadro-avisos-link:hover {
+        .sidebar-item.external-link:hover {
             background-color: #eff6ff;
+        }
+        .sidebar-item.external-link-secondary {
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -153,9 +156,15 @@
                     <i class="fas fa-history w-5"></i> <span>Histórico Ponto</span>
                 </div>
                 <!-- QUADRO DE AVISOS - Atalho no menu lateral -->
-                <div class="sidebar-item quadro-avisos-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/Quadro-de-avisos/', '_blank')">
+                <div class="sidebar-item external-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/Quadro-de-avisos/', '_blank')">
                     <i class="fas fa-chalkboard w-5 text-blue-600"></i> 
                     <span class="font-medium">Quadro de Avisos</span>
+                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
+                </div>
+                <!-- CONTROLE DE CARGA - Atalho no menu lateral -->
+                <div class="sidebar-item external-link external-link-secondary flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/controle-de-carga/', '_blank')">
+                    <i class="fas fa-boxes w-5 text-green-600"></i> 
+                    <span class="font-medium">Controle de Carga</span>
                     <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
                 </div>
             </nav>
@@ -1036,8 +1045,8 @@
                             document.querySelector(`#desktopNav [data-tab="${tabId}"]`).click();
                         });
                     }
-                    // Preservar a funcionalidade do link do quadro de avisos no mobile
-                    if(item.classList.contains('quadro-avisos-link')) {
+                    // Preservar a funcionalidade dos links externos no mobile
+                    if(item.classList.contains('external-link')) {
                         const originalOnclick = item.getAttribute('onclick');
                         if(originalOnclick) {
                             item.setAttribute('onclick', originalOnclick);
