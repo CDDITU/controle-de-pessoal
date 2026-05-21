@@ -99,6 +99,16 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        
+        /* Estilo para o link do quadro de avisos no menu lateral */
+        .sidebar-item.quadro-avisos-link {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+            padding-top: 12px;
+        }
+        .sidebar-item.quadro-avisos-link:hover {
+            background-color: #eff6ff;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -141,6 +151,12 @@
                 </div>
                 <div data-tab="historico" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
                     <i class="fas fa-history w-5"></i> <span>Histórico Ponto</span>
+                </div>
+                <!-- QUADRO DE AVISOS - Atalho no menu lateral -->
+                <div class="sidebar-item quadro-avisos-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/Quadro-de-avisos/', '_blank')">
+                    <i class="fas fa-chalkboard w-5 text-blue-600"></i> 
+                    <span class="font-medium">Quadro de Avisos</span>
+                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
                 </div>
             </nav>
         </aside>
@@ -941,7 +957,7 @@
             
             const tbody = document.getElementById("tabelaHistorico");
             if(registros.length === 0) {
-                tbody.innerHTML = '<td><td colspan="4" class="text-center py-4 text-gray-500 text-sm">Nenhum registro encontrado</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500 text-sm">Nenhum registro encontrado</td></tr>';
                 return;
             }
             
@@ -985,7 +1001,10 @@
             }
             
             sidebarItems.forEach(item => {
-                item.addEventListener('click', () => switchTab(item.getAttribute('data-tab')));
+                const tabId = item.getAttribute('data-tab');
+                if(tabId) {
+                    item.addEventListener('click', () => switchTab(tabId));
+                }
             });
             
             switchTab('dashboard');
@@ -1011,12 +1030,19 @@
                 mobileNav.innerHTML = desktopNav.innerHTML;
                 const mobileItems = mobileNav.querySelectorAll('.sidebar-item');
                 mobileItems.forEach(item => {
-                    item.addEventListener('click', () => {
-                        const tabId = item.getAttribute('data-tab');
-                        if(tabId) {
+                    const tabId = item.getAttribute('data-tab');
+                    if(tabId) {
+                        item.addEventListener('click', () => {
                             document.querySelector(`#desktopNav [data-tab="${tabId}"]`).click();
+                        });
+                    }
+                    // Preservar a funcionalidade do link do quadro de avisos no mobile
+                    if(item.classList.contains('quadro-avisos-link')) {
+                        const originalOnclick = item.getAttribute('onclick');
+                        if(originalOnclick) {
+                            item.setAttribute('onclick', originalOnclick);
                         }
-                    });
+                    }
                 });
             }
         }
