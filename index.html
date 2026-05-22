@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Logística Control - Gestão de Pessoal</title>
-    <!-- Tailwind CSS v3 + Font Awesome + Google Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Firebase Modular SDK v10 -->
     <script type="importmap">
         {
             "imports": {
@@ -22,7 +20,6 @@
         * { font-family: 'Inter', sans-serif; }
         body { background: #f3f4f6; }
         
-        /* Menu mobile */
         .sidebar-mobile {
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out;
@@ -33,9 +30,7 @@
             z-index: 1000;
             overflow-y: auto;
         }
-        .sidebar-mobile.open {
-            transform: translateX(0);
-        }
+        .sidebar-mobile.open { transform: translateX(0); }
         .overlay {
             display: none;
             position: fixed;
@@ -46,49 +41,21 @@
             background: rgba(0,0,0,0.5);
             z-index: 999;
         }
-        .overlay.active {
-            display: block;
-        }
+        .overlay.active { display: block; }
         
-        /* Desktop sidebar */
         @media (min-width: 768px) {
-            .sidebar-desktop {
-                display: block !important;
-            }
-            .sidebar-mobile, .mobile-menu-btn {
-                display: none !important;
-            }
-            .overlay {
-                display: none !important;
-            }
+            .sidebar-desktop { display: block !important; }
+            .sidebar-mobile, .mobile-menu-btn { display: none !important; }
+            .overlay { display: none !important; }
         }
         
-        /* Mobile adjustments */
         @media (max-width: 767px) {
-            .sidebar-desktop {
-                display: none !important;
-            }
-            .mobile-menu-btn {
-                display: block !important;
-            }
-            .cards-grid {
-                grid-template-columns: 1fr !important;
-            }
-            .charts-grid {
-                grid-template-columns: 1fr !important;
-            }
-            .checklist-header {
-                display: none !important;
-            }
-            .checklist-card {
-                display: block !important;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-            .filter-grid {
-                grid-template-columns: 1fr !important;
-            }
+            .sidebar-desktop { display: none !important; }
+            .mobile-menu-btn { display: block !important; }
+            .cards-grid { grid-template-columns: 1fr !important; }
+            .charts-grid { grid-template-columns: 1fr !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .filter-grid { grid-template-columns: 1fr !important; }
         }
         
         .sidebar-item.active { 
@@ -109,7 +76,6 @@
             left: 20px;
             z-index: 9999; 
             animation: slideIn 0.3s ease-out;
-            font-size: 0.875rem;
             max-width: 350px;
             margin: 0 auto;
         }
@@ -121,46 +87,36 @@
         .tab-content.active-tab { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .checklist-item {
-            transition: all 0.3s ease;
-        }
-        .checklist-item:active {
-            transform: scale(0.98);
-        }
-        .btn-marcar {
+        .btn-marcar { transition: all 0.2s; touch-action: manipulation; }
+        .btn-marcar:active { transform: scale(0.95); }
+        .progress-bar { transition: width 0.5s ease; }
+        
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .ocorrencia-card {
             transition: all 0.2s;
-            touch-action: manipulation;
         }
-        .btn-marcar:active {
-            transform: scale(0.95);
-        }
-        .progress-bar {
-            transition: width 0.5s ease;
+        .ocorrencia-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        /* Scroll suave */
-        html {
-            scroll-behavior: smooth;
+        /* Estilo para os links externos no menu lateral */
+        .sidebar-item.external-link {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+            padding-top: 12px;
         }
-        
-        /* Melhorias para touch */
-        button, .sidebar-item, .checklist-item {
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+        .sidebar-item.external-link:hover {
+            background-color: #eff6ff;
         }
-        
-        /* Responsive tables */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        .sidebar-item.external-link-secondary {
+            margin-top: 4px;
         }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Overlay para mobile -->
     <div id="overlay" class="overlay" onclick="fecharMenuMobile()"></div>
     
-    <!-- Menu Mobile (Hambúrguer) -->
     <div id="sidebarMobile" class="sidebar-mobile w-72 bg-white shadow-2xl">
         <div class="p-5 border-b border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -171,14 +127,10 @@
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
-        <nav class="p-4 space-y-2" id="mobileNav">
-            <!-- Menu items serão clonados via JS -->
-        </nav>
+        <nav class="p-4 space-y-2" id="mobileNav"></nav>
     </div>
     
-    <!-- Layout Desktop e Mobile -->
     <div class="flex min-h-screen">
-        <!-- SIDEBAR DESKTOP -->
         <aside class="sidebar-desktop w-72 bg-white shadow-lg min-h-screen border-r border-gray-200 fixed inset-y-0 left-0 z-10">
             <div class="p-6 border-b border-gray-100 flex items-center gap-3">
                 <i class="fas fa-truck-fast text-2xl text-blue-600"></i>
@@ -195,17 +147,30 @@
                     <i class="fas fa-check-square w-5"></i> <span>Checklist Ponto</span>
                 </div>
                 <div data-tab="ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-exclamation-triangle w-5"></i> <span>Ocorrências</span>
+                    <i class="fas fa-exclamation-triangle w-5"></i> <span>Registrar Ocorrência</span>
+                </div>
+                <div data-tab="consulta-ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
+                    <i class="fas fa-search w-5"></i> <span>Consultar Ocorrências</span>
                 </div>
                 <div data-tab="historico" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-history w-5"></i> <span>Histórico</span>
+                    <i class="fas fa-history w-5"></i> <span>Histórico Ponto</span>
+                </div>
+                <!-- QUADRO DE AVISOS - Atalho no menu lateral -->
+                <div class="sidebar-item external-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/Quadro-de-avisos/', '_blank')">
+                    <i class="fas fa-chalkboard w-5 text-blue-600"></i> 
+                    <span class="font-medium">Quadro de Avisos</span>
+                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
+                </div>
+                <!-- CONTROLE DE CARGA - Atalho no menu lateral -->
+                <div class="sidebar-item external-link external-link-secondary flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/controle-de-carga/', '_blank')">
+                    <i class="fas fa-boxes w-5 text-green-600"></i> 
+                    <span class="font-medium">Controle de Carga</span>
+                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
                 </div>
             </nav>
         </aside>
 
-        <!-- CONTEÚDO PRINCIPAL -->
         <main class="flex-1 md:ml-72 min-h-screen">
-            <!-- Header Mobile com botão hambúrguer -->
             <div class="mobile-menu-btn bg-white shadow-sm p-4 sticky top-0 z-20 md:hidden">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -281,10 +246,8 @@
                                     <option>Motociclista</option>
                                     <option>Ciclista</option>
                                     <option>Interno</option>
-
-<option>Pedestre</option>
-
-<option>Gestão</option>
+                                    <option>Pedestre</option>
+                                    <option>Gestão</option>
                                 </select>
                             </div>
                             <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium text-sm">
@@ -294,7 +257,7 @@
                     </div>
                 </div>
 
-                <!-- CHECKLIST DE PONTO (RESPONSIVO) -->
+                <!-- CHECKLIST PONTO -->
                 <div id="ponto" class="tab-content">
                     <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -316,8 +279,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Cards Resumo Responsivo -->
                         <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                             <div class="bg-green-50 rounded-lg p-3 text-center">
                                 <i class="fas fa-check-circle text-green-600 text-lg md:text-xl"></i>
@@ -340,13 +301,11 @@
                                 <p class="text-xs text-gray-600">Total</p>
                             </div>
                         </div>
-
-                        <!-- Checklist em Cards para Mobile e Tabela para Desktop -->
                         <div id="checklistContainer" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- OCORRÊNCIAS -->
+                <!-- REGISTRAR OCORRÊNCIA -->
                 <div id="ocorrencias" class="tab-content">
                     <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 max-w-2xl mx-auto">
                         <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-bell text-red-500 mr-2"></i>Registrar Ocorrência</h2>
@@ -373,7 +332,117 @@
                     </div>
                 </div>
 
-                <!-- HISTÓRICO RESPONSIVO -->
+                <!-- CONSULTAR OCORRÊNCIAS (NOVA ABA) -->
+                <div id="consulta-ocorrencias" class="tab-content">
+                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div>
+                                <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+                                    <i class="fas fa-search text-blue-500 mr-2"></i>
+                                    Consulta de Ocorrências
+                                </h2>
+                                <p class="text-gray-500 text-sm mt-1">Pesquise ocorrências por período, funcionário ou abrangência</p>
+                            </div>
+                            <button id="btnExportarOcorrencias" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm w-full md:w-auto">
+                                <i class="fas fa-download mr-2"></i>Exportar CSV
+                            </button>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div class="filter-grid grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
+                                <select id="filtroOcorrenciaFuncionario" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">Todos os funcionários</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                                <input type="date" id="filtroOcorrenciaDataInicio" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                                <input type="date" id="filtroOcorrenciaDataFim" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Abrangência</label>
+                                <select id="filtroOcorrenciaAbrangencia" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option value="">Todas</option>
+                                    <option value="Individual">Individual</option>
+                                    <option value="Unidade">Unidade</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Botões de ação -->
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <button id="btnFiltrarOcorrencias" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-search mr-2"></i>Filtrar
+                            </button>
+                            <button id="btnLimparFiltrosOcorrencias" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-eraser mr-2"></i>Limpar Filtros
+                            </button>
+                            <button id="btnSemanaAtualOcorrencias" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-calendar-week mr-2"></i>Semana Atual
+                            </button>
+                            <button id="btnMesAtualOcorrencias" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-calendar-alt mr-2"></i>Mês Atual
+                            </button>
+                        </div>
+
+                        <!-- Estatísticas -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-6">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-600">Total de Ocorrências</p>
+                                    <p class="text-2xl font-bold text-gray-800" id="totalOcorrenciasFiltro">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Individuais</p>
+                                    <p class="text-2xl font-bold text-blue-600" id="totalIndividuais">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Unidade</p>
+                                    <p class="text-2xl font-bold text-purple-600" id="totalUnidade">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Última Ocorrência</p>
+                                    <p class="text-lg font-bold text-gray-800" id="ultimaOcorrencia">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de ocorrências em cards (mobile) e tabela (desktop) -->
+                        <div class="table-responsive hidden md:block">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Funcionário</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Abrangência</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaOcorrencias" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Cards para mobile -->
+                        <div id="cardsOcorrencias" class="space-y-3 md:hidden"></div>
+                        
+                        <!-- Paginação -->
+                        <div class="flex justify-between items-center mt-6">
+                            <p class="text-sm text-gray-500" id="infoPaginaOcorrencias"></p>
+                            <div class="flex gap-2">
+                                <button id="btnAnteriorOcorrencias" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Anterior</button>
+                                <span id="paginaAtualOcorrencias" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">1</span>
+                                <button id="btnProximoOcorrencias" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Próximo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HISTÓRICO PONTO -->
                 <div id="historico" class="tab-content">
                     <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
                         <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-history text-blue-500 mr-2"></i>Histórico de Ponto</h2>
@@ -450,6 +519,11 @@
         let funcionariosList = [];
         let pontosHojeMap = new Map();
         let funcionarioSelecionadoModal = null;
+        
+        // Variáveis para paginação de ocorrências
+        let ocorrenciasCache = [];
+        let paginaAtualOcorrencias = 1;
+        const itensPorPaginaOcorrencias = 10;
 
         function showToast(message, type = "success") {
             const toastDiv = document.createElement("div");
@@ -464,10 +538,16 @@
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         }
 
-        // Carregar checklist responsivo
+        function formatarDataBR(dataISO) {
+            if(!dataISO) return '-';
+            const partes = dataISO.split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        // ==================== CHECKLIST PONTO ====================
         async function carregarChecklist() {
             const hoje = getLocalDateStr();
-            document.getElementById("dataAtualDisplay").innerHTML = `${hoje.split('-')[2]}/${hoje.split('-')[1]}/${hoje.split('-')[0]}`;
+            document.getElementById("dataAtualDisplay").innerHTML = formatarDataBR(hoje);
             
             const funcSnapshot = await getDocs(funcionariosRef);
             funcionariosList = [];
@@ -495,7 +575,6 @@
                 return;
             }
             
-            // Layout em cards para mobile e desktop
             container.innerHTML = funcionariosList.map(func => {
                 const ponto = pontosHojeMap.get(func.id);
                 const status = ponto ? ponto.status : "Pendente";
@@ -585,7 +664,7 @@
             document.getElementById("progressoBar").style.width = `${progresso}%`;
         }
         
-        // Dashboard
+        // ==================== DASHBOARD ====================
         async function atualizarDashboard() {
             const hoje = getLocalDateStr();
             const pontosQuery = query(pontosRef, where("data", "==", hoje));
@@ -638,7 +717,174 @@
             });
         }
         
-        // Cadastro
+        // ==================== CONSULTAR OCORRÊNCIAS ====================
+        async function buscarOcorrencias() {
+            const funcionarioId = document.getElementById("filtroOcorrenciaFuncionario").value;
+            const dataInicio = document.getElementById("filtroOcorrenciaDataInicio").value;
+            const dataFim = document.getElementById("filtroOcorrenciaDataFim").value;
+            const abrangencia = document.getElementById("filtroOcorrenciaAbrangencia").value;
+            
+            const snapshot = await getDocs(ocorrenciasRef);
+            const funcionariosMap = new Map();
+            const funcSnapshot = await getDocs(funcionariosRef);
+            funcSnapshot.forEach(doc => funcionariosMap.set(doc.id, doc.data()));
+            
+            let ocorrencias = [];
+            snapshot.forEach(doc => {
+                const ocorr = doc.data();
+                let incluir = true;
+                
+                if(funcionarioId && abrangencia === "Individual" && ocorr.funcionarioId !== funcionarioId) incluir = false;
+                if(dataInicio && ocorr.dataRegistro < dataInicio) incluir = false;
+                if(dataFim && ocorr.dataRegistro > dataFim) incluir = false;
+                if(abrangencia && ocorr.abrangencia !== abrangencia) incluir = false;
+                
+                if(incluir) {
+                    const funcionario = ocorr.funcionarioId === "UNIDADE" ? 
+                        { nome: "UNIDADE" } : 
+                        (funcionariosMap.get(ocorr.funcionarioId) || { nome: "Desconhecido" });
+                    
+                    ocorrencias.push({
+                        id: doc.id,
+                        data: ocorr.dataRegistro,
+                        funcionarioId: ocorr.funcionarioId,
+                        funcionarioNome: funcionario.nome,
+                        abrangencia: ocorr.abrangencia,
+                        descricao: ocorr.descricao
+                    });
+                }
+            });
+            
+            // Ordenar por data decrescente
+            ocorrencias.sort((a, b) => b.data.localeCompare(a.data));
+            ocorrenciasCache = ocorrencias;
+            paginaAtualOcorrencias = 1;
+            renderizarOcorrencias();
+            atualizarEstatisticasOcorrencias(ocorrencias);
+        }
+        
+        function renderizarOcorrencias() {
+            const inicio = (paginaAtualOcorrencias - 1) * itensPorPaginaOcorrencias;
+            const fim = inicio + itensPorPaginaOcorrencias;
+            const ocorrenciasPagina = ocorrenciasCache.slice(inicio, fim);
+            const totalPaginas = Math.ceil(ocorrenciasCache.length / itensPorPaginaOcorrencias);
+            
+            // Tabela desktop
+            const tbody = document.getElementById("tabelaOcorrencias");
+            if(ocorrenciasPagina.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Nenhuma ocorrência encontrada</td>' +
+                    '<td class="hidden"></td><td class="hidden"></td><td class="hidden"></td></tr>';
+                document.getElementById("cardsOcorrencias").innerHTML = `
+                    <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-xl">
+                        <i class="fas fa-search fa-2x mb-2 block"></i>
+                        Nenhuma ocorrência encontrada
+                    </div>
+                `;
+            } else {
+                tbody.innerHTML = ocorrenciasPagina.map(occ => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm">${formatarDataBR(occ.data)}</td>
+                        <td class="px-4 py-3 text-sm">${occ.funcionarioNome}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs ${occ.abrangencia === 'Individual' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
+                                ${occ.abrangencia}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm max-w-md">${occ.descricao.substring(0, 100)}${occ.descricao.length > 100 ? '...' : ''}</td>
+                    </tr>
+                `).join('');
+                
+                // Cards mobile
+                document.getElementById("cardsOcorrencias").innerHTML = ocorrenciasPagina.map(occ => `
+                    <div class="ocorrencia-card bg-white border rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-gray-500"><i class="fas fa-calendar mr-1"></i>${formatarDataBR(occ.data)}</span>
+                            <span class="px-2 py-1 rounded-full text-xs ${occ.abrangencia === 'Individual' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
+                                ${occ.abrangencia}
+                            </span>
+                        </div>
+                        <div class="font-semibold text-gray-900 text-sm mb-1">
+                            <i class="fas fa-user mr-1"></i>${occ.funcionarioNome}
+                        </div>
+                        <p class="text-gray-600 text-xs mt-2">${occ.descricao}</p>
+                    </div>
+                `).join('');
+            }
+            
+            // Atualizar paginação
+            document.getElementById("btnAnteriorOcorrencias").disabled = paginaAtualOcorrencias === 1;
+            document.getElementById("btnProximoOcorrencias").disabled = paginaAtualOcorrencias === totalPaginas;
+            document.getElementById("paginaAtualOcorrencias").innerText = paginaAtualOcorrencias;
+            document.getElementById("infoPaginaOcorrencias").innerHTML = `Mostrando ${inicio+1} a ${Math.min(fim, ocorrenciasCache.length)} de ${ocorrenciasCache.length} registros`;
+        }
+        
+        function atualizarEstatisticasOcorrencias(ocorrencias) {
+            const total = ocorrencias.length;
+            const individuais = ocorrencias.filter(o => o.abrangencia === "Individual").length;
+            const unidade = ocorrencias.filter(o => o.abrangencia === "Unidade").length;
+            const ultimaData = ocorrencias.length > 0 ? formatarDataBR(ocorrencias[0].data) : "-";
+            
+            document.getElementById("totalOcorrenciasFiltro").innerText = total;
+            document.getElementById("totalIndividuais").innerText = individuais;
+            document.getElementById("totalUnidade").innerText = unidade;
+            document.getElementById("ultimaOcorrencia").innerText = ultimaData;
+        }
+        
+        function limparFiltrosOcorrencias() {
+            document.getElementById("filtroOcorrenciaFuncionario").value = "";
+            document.getElementById("filtroOcorrenciaDataInicio").value = "";
+            document.getElementById("filtroOcorrenciaDataFim").value = "";
+            document.getElementById("filtroOcorrenciaAbrangencia").value = "";
+            buscarOcorrencias();
+        }
+        
+        function setSemanaAtualOcorrencias() {
+            const hoje = new Date();
+            const primeiroDia = new Date(hoje);
+            primeiroDia.setDate(hoje.getDate() - hoje.getDay());
+            const ultimoDia = new Date(primeiroDia);
+            ultimoDia.setDate(primeiroDia.getDate() + 6);
+            
+            document.getElementById("filtroOcorrenciaDataInicio").value = primeiroDia.toISOString().split('T')[0];
+            document.getElementById("filtroOcorrenciaDataFim").value = ultimoDia.toISOString().split('T')[0];
+            buscarOcorrencias();
+        }
+        
+        function setMesAtualOcorrencias() {
+            const hoje = new Date();
+            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            
+            document.getElementById("filtroOcorrenciaDataInicio").value = primeiroDia.toISOString().split('T')[0];
+            document.getElementById("filtroOcorrenciaDataFim").value = ultimoDia.toISOString().split('T')[0];
+            buscarOcorrencias();
+        }
+        
+        function exportarOcorrenciasCSV() {
+            if(ocorrenciasCache.length === 0) {
+                showToast("Nenhum dado para exportar!", "error");
+                return;
+            }
+            
+            const headers = ["Data", "Funcionário", "Abrangência", "Descrição"];
+            const rows = ocorrenciasCache.map(occ => [
+                occ.data, occ.funcionarioNome, occ.abrangencia, `"${occ.descricao.replace(/"/g, '""')}"`
+            ]);
+            
+            const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute("download", `ocorrencias_${getLocalDateStr()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast("✅ Ocorrências exportadas com sucesso!");
+        }
+        
+        // ==================== CADASTRO E OUTROS ====================
         document.getElementById("formFuncionario").addEventListener("submit", async (e) => {
             e.preventDefault();
             const matricula = document.getElementById("matricula").value.trim();
@@ -655,7 +901,6 @@
             } catch(err) { showToast("Erro: "+err.message, "error"); }
         });
         
-        // Ocorrências
         document.getElementById("formOcorrencia").addEventListener("submit", async (e) => {
             e.preventDefault();
             const abrangencia = document.getElementById("abrangencia").value;
@@ -664,10 +909,19 @@
             const descricao = document.getElementById("descricaoOcorrencia").value.trim();
             if(!descricao) { showToast("Descreva a ocorrência!", "error"); return; }
             try {
-                await setDoc(doc(ocorrenciasRef), { abrangencia, funcionarioId, descricao, dataRegistro: getLocalDateStr(), timestamp: new Date() });
+                await setDoc(doc(ocorrenciasRef), { 
+                    abrangencia, 
+                    funcionarioId, 
+                    descricao, 
+                    dataRegistro: getLocalDateStr(), 
+                    timestamp: new Date() 
+                });
                 showToast("✅ Ocorrência registrada!");
                 document.getElementById("formOcorrencia").reset();
                 await atualizarDashboard();
+                if(document.querySelector('.tab-content.active-tab').id === 'consulta-ocorrencias') {
+                    await buscarOcorrencias();
+                }
             } catch(err) { showToast("Erro: "+err.message, "error"); }
         });
         
@@ -676,27 +930,25 @@
             const funcionarios = [];
             snapshot.forEach(doc => funcionarios.push({ id: doc.id, ...doc.data() }));
             
-            const selectOcorr = document.getElementById("selectFuncOcorrencia");
-            const filtroFunc = document.getElementById("filtroFuncionario");
-            
-            if(selectOcorr) {
-                selectOcorr.innerHTML = '<option value="">Selecione</option>';
-                funcionarios.forEach(f => selectOcorr.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`);
-            }
-            if(filtroFunc) {
-                filtroFunc.innerHTML = '<option value="">Todos os funcionários</option>';
-                funcionarios.forEach(f => filtroFunc.innerHTML += `<option value="${f.id}">${f.nome}</option>`);
-            }
+            const selects = ["selectFuncOcorrencia", "filtroFuncionario", "filtroOcorrenciaFuncionario"];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if(select) {
+                    select.innerHTML = '<option value="">Selecione</option>';
+                    funcionarios.forEach(f => {
+                        select.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`;
+                    });
+                }
+            });
         }
         
-        // Histórico
+        // Histórico Ponto
         async function buscarHistorico() {
             const funcionarioId = document.getElementById("filtroFuncionario").value;
             const dataInicio = document.getElementById("filtroDataInicio").value;
             const dataFim = document.getElementById("filtroDataFim").value;
             
-            let q = query(pontosRef, orderBy("data", "desc"));
-            const snapshot = await getDocs(q);
+            const snapshot = await getDocs(query(pontosRef, orderBy("data", "desc")));
             const funcionariosMap = new Map();
             const funcSnapshot = await getDocs(funcionariosRef);
             funcSnapshot.forEach(doc => funcionariosMap.set(doc.id, doc.data()));
@@ -720,7 +972,7 @@
             
             tbody.innerHTML = registros.map(r => `
                 <tr class="hover:bg-gray-50">
-                    <td class="px-3 md:px-4 py-2 text-sm">${r.data}</td>
+                    <td class="px-3 md:px-4 py-2 text-sm">${formatarDataBR(r.data)}</td>
                     <td class="px-3 md:px-4 py-2 text-sm">${r.funcionario}</td>
                     <td class="px-3 md:px-4 py-2"><span class="px-2 py-1 rounded-full text-xs ${r.status === 'Presente' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.status}</span></td>
                     <td class="px-3 md:px-4 py-2 text-sm">${r.motivo}</td>
@@ -728,7 +980,7 @@
             `).join('');
         }
         
-        // Navegação responsiva
+        // Navegação
         let currentTab = 'dashboard';
         
         function initNavigation() {
@@ -752,19 +1004,22 @@
                 if(tabId === 'dashboard') atualizarDashboard();
                 if(tabId === 'ponto') carregarChecklist();
                 if(tabId === 'historico') buscarHistorico();
+                if(tabId === 'consulta-ocorrencias') buscarOcorrencias();
                 
-                // Fechar menu mobile após clicar
                 if(window.innerWidth < 768) fecharMenuMobile();
             }
             
             sidebarItems.forEach(item => {
-                item.addEventListener('click', () => switchTab(item.getAttribute('data-tab')));
+                const tabId = item.getAttribute('data-tab');
+                if(tabId) {
+                    item.addEventListener('click', () => switchTab(tabId));
+                }
             });
             
             switchTab('dashboard');
         }
         
-        // Funções menu mobile
+        // Menu mobile
         window.abrirMenuMobile = function() {
             document.getElementById('sidebarMobile').classList.add('open');
             document.getElementById('overlay').classList.add('active');
@@ -777,7 +1032,6 @@
             document.body.style.overflow = '';
         };
         
-        // Clonar menu para mobile
         function cloneMenuToMobile() {
             const desktopNav = document.getElementById('desktopNav');
             const mobileNav = document.getElementById('mobileNav');
@@ -785,17 +1039,24 @@
                 mobileNav.innerHTML = desktopNav.innerHTML;
                 const mobileItems = mobileNav.querySelectorAll('.sidebar-item');
                 mobileItems.forEach(item => {
-                    item.addEventListener('click', () => {
-                        const tabId = item.getAttribute('data-tab');
-                        if(tabId) {
+                    const tabId = item.getAttribute('data-tab');
+                    if(tabId) {
+                        item.addEventListener('click', () => {
                             document.querySelector(`#desktopNav [data-tab="${tabId}"]`).click();
+                        });
+                    }
+                    // Preservar a funcionalidade dos links externos no mobile
+                    if(item.classList.contains('external-link')) {
+                        const originalOnclick = item.getAttribute('onclick');
+                        if(originalOnclick) {
+                            item.setAttribute('onclick', originalOnclick);
                         }
-                    });
+                    }
                 });
             }
         }
         
-        // Eventos globais
+        // Eventos
         window.marcarPresenca = marcarPresenca;
         
         document.getElementById("abrangencia")?.addEventListener("change", (e) => {
@@ -819,6 +1080,20 @@
         
         document.getElementById("btnFiltrar")?.addEventListener("click", buscarHistorico);
         
+        // Eventos ocorrências
+        document.getElementById("btnFiltrarOcorrencias")?.addEventListener("click", buscarOcorrencias);
+        document.getElementById("btnLimparFiltrosOcorrencias")?.addEventListener("click", limparFiltrosOcorrencias);
+        document.getElementById("btnSemanaAtualOcorrencias")?.addEventListener("click", setSemanaAtualOcorrencias);
+        document.getElementById("btnMesAtualOcorrencias")?.addEventListener("click", setMesAtualOcorrencias);
+        document.getElementById("btnAnteriorOcorrencias")?.addEventListener("click", () => {
+            if(paginaAtualOcorrencias > 1) { paginaAtualOcorrencias--; renderizarOcorrencias(); }
+        });
+        document.getElementById("btnProximoOcorrencias")?.addEventListener("click", () => {
+            const totalPaginas = Math.ceil(ocorrenciasCache.length / itensPorPaginaOcorrencias);
+            if(paginaAtualOcorrencias < totalPaginas) { paginaAtualOcorrencias++; renderizarOcorrencias(); }
+        });
+        document.getElementById("btnExportarOcorrencias")?.addEventListener("click", exportarOcorrenciasCSV);
+        
         // Inicialização
         async function init() {
             await carregarSelects();
@@ -832,8 +1107,9 @@
             trintaDiasAtras.setDate(hoje.getDate() - 30);
             document.getElementById("filtroDataInicio").value = trintaDiasAtras.toISOString().split('T')[0];
             document.getElementById("filtroDataFim").value = hoje.toISOString().split('T')[0];
+            document.getElementById("filtroOcorrenciaDataInicio").value = trintaDiasAtras.toISOString().split('T')[0];
+            document.getElementById("filtroOcorrenciaDataFim").value = hoje.toISOString().split('T')[0];
             
-            // Ajustar gráficos ao redimensionar
             window.addEventListener('resize', () => {
                 if(currentTab === 'dashboard') atualizarDashboard();
             });
