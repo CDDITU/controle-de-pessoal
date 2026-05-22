@@ -2,1120 +2,373 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Logística Control - Gestão de Pessoal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SGO Nexus | Unidade Operacional</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script type="importmap">
-        {
-            "imports": {
-                "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-            }
-        }
-    </script>
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #f3f4f6; }
-        
-        .sidebar-mobile {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            z-index: 1000;
-            overflow-y: auto;
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        body { background: linear-gradient(135deg, #f0f9f4 0%, #e6f0ec 100%); background-attachment: fixed; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.08); }
+        .tab-active { background: rgba(16, 185, 129, 0.12); color: #059669; border-left: 3px solid #10b981; font-weight: 600; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        input:focus, select:focus { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); border-color: #10b981; outline: none; }
+        .stat-number { font-feature-settings: "tnum"; font-variant-numeric: tabular-nums; }
+        @media (max-width: 768px) {
+            .table-responsive tbody tr { display: flex; flex-direction: column; border-bottom: 1px solid #e2e8f0; padding: 1rem; }
+            .table-responsive thead { display: none; }
+            .table-responsive td { padding: 0.4rem 0; display: flex; justify-content: space-between; align-items: center; border: none; }
+            .table-responsive td::before { content: attr(data-label); font-weight: 700; font-size: 0.7rem; color: #475569; text-transform: uppercase; }
         }
-        .sidebar-mobile.open { transform: translateX(0); }
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        .overlay.active { display: block; }
-        
-        @media (min-width: 768px) {
-            .sidebar-desktop { display: block !important; }
-            .sidebar-mobile, .mobile-menu-btn { display: none !important; }
-            .overlay { display: none !important; }
-        }
-        
-        @media (max-width: 767px) {
-            .sidebar-desktop { display: none !important; }
-            .mobile-menu-btn { display: block !important; }
-            .cards-grid { grid-template-columns: 1fr !important; }
-            .charts-grid { grid-template-columns: 1fr !important; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-            .filter-grid { grid-template-columns: 1fr !important; }
-        }
-        
-        .sidebar-item.active { 
-            background-color: #e0e7ff; 
-            color: #1e3a8a; 
-            border-left: 4px solid #2563eb;
-            font-weight: 600;
-        }
-        .sidebar-item { 
-            transition: all 0.2s; 
-            cursor: pointer;
-            border-left: 4px solid transparent;
-        }
-        .toast-notify { 
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px; 
-            left: 20px;
-            z-index: 9999; 
-            animation: slideIn 0.3s ease-out;
-            max-width: 350px;
-            margin: 0 auto;
-        }
-        @keyframes slideIn { 
-            from { opacity: 0; transform: translateY(30px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        .tab-content { display: none; }
-        .tab-content.active-tab { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .btn-marcar { transition: all 0.2s; touch-action: manipulation; }
-        .btn-marcar:active { transform: scale(0.95); }
-        .progress-bar { transition: width 0.5s ease; }
-        
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .ocorrencia-card {
-            transition: all 0.2s;
-        }
-        .ocorrencia-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        /* Estilo para os links externos no menu lateral */
-        .sidebar-item.external-link {
-            border-top: 1px solid #e5e7eb;
-            margin-top: 8px;
-            padding-top: 12px;
-        }
-        .sidebar-item.external-link:hover {
-            background-color: #eff6ff;
-        }
-        .sidebar-item.external-link-secondary {
-            margin-top: 4px;
-        }
+        .timeline-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .loading-skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div id="overlay" class="overlay" onclick="fecharMenuMobile()"></div>
-    
-    <div id="sidebarMobile" class="sidebar-mobile w-72 bg-white shadow-2xl">
-        <div class="p-5 border-b border-gray-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-truck-fast text-2xl text-blue-600"></i>
-                <h1 class="text-xl font-bold text-gray-800">Logística<span class="text-blue-600">Control</span></h1>
-            </div>
-            <button onclick="fecharMenuMobile()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        <nav class="p-4 space-y-2" id="mobileNav"></nav>
-    </div>
-    
-    <div class="flex min-h-screen">
-        <aside class="sidebar-desktop w-72 bg-white shadow-lg min-h-screen border-r border-gray-200 fixed inset-y-0 left-0 z-10">
-            <div class="p-6 border-b border-gray-100 flex items-center gap-3">
-                <i class="fas fa-truck-fast text-2xl text-blue-600"></i>
-                <h1 class="text-xl font-bold text-gray-800">Logística<span class="text-blue-600">Control</span></h1>
-            </div>
-            <nav class="p-4 space-y-2" id="desktopNav">
-                <div data-tab="dashboard" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-chart-pie w-5"></i> <span>Dashboard</span>
-                </div>
-                <div data-tab="cadastro" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-user-plus w-5"></i> <span>Cadastro</span>
-                </div>
-                <div data-tab="ponto" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-check-square w-5"></i> <span>Checklist Ponto</span>
-                </div>
-                <div data-tab="ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-exclamation-triangle w-5"></i> <span>Registrar Ocorrência</span>
-                </div>
-                <div data-tab="consulta-ocorrencias" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-search w-5"></i> <span>Consultar Ocorrências</span>
-                </div>
-                <div data-tab="historico" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100">
-                    <i class="fas fa-history w-5"></i> <span>Histórico Ponto</span>
-                </div>
-                <!-- QUADRO DE AVISOS - Atalho no menu lateral -->
-                <div class="sidebar-item external-link flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/Quadro-de-avisos/', '_blank')">
-                    <i class="fas fa-chalkboard w-5 text-blue-600"></i> 
-                    <span class="font-medium">Quadro de Avisos</span>
-                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
-                </div>
-                <!-- CONTROLE DE CARGA - Atalho no menu lateral -->
-                <div class="sidebar-item external-link external-link-secondary flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 cursor-pointer" onclick="window.open('https://cdditu.github.io/controle-de-carga/', '_blank')">
-                    <i class="fas fa-boxes w-5 text-green-600"></i> 
-                    <span class="font-medium">Controle de Carga</span>
-                    <i class="fas fa-external-link-alt text-xs text-gray-400 ml-auto"></i>
-                </div>
-            </nav>
-        </aside>
+<body class="min-h-screen flex flex-col md:flex-row antialiased">
 
-        <main class="flex-1 md:ml-72 min-h-screen">
-            <div class="mobile-menu-btn bg-white shadow-sm p-4 sticky top-0 z-20 md:hidden">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-truck-fast text-2xl text-blue-600"></i>
-                        <h1 class="text-xl font-bold text-gray-800">Logística<span class="text-blue-600">Control</span></h1>
-                    </div>
-                    <button onclick="abrirMenuMobile()" class="text-gray-600 hover:text-gray-800 p-2">
-                        <i class="fas fa-bars text-2xl"></i>
-                    </button>
-                </div>
+    <!-- MENU MOBILE -->
+    <div class="bg-slate-900 text-white px-5 py-3 flex justify-between items-center md:hidden w-full shadow-lg z-50 fixed top-0 left-0 backdrop-blur-sm bg-slate-900/95">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-envelope-open-text text-emerald-400 text-xl"></i>
+            <h1 class="text-lg font-bold tracking-tight">SGO<span class="text-emerald-400"> Nexus</span></h1>
+        </div>
+        <button onclick="toggleMobileMenu()" class="text-white text-2xl focus:outline-none">
+            <i id="menu-icon" class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="w-full md:w-72 bg-slate-900 text-slate-200 flex flex-col fixed md:sticky top-0 h-screen z-40 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 pt-16 md:pt-0 shadow-2xl">
+        <div class="flex-1 px-5 py-6">
+            <div class="hidden md:flex items-center gap-3 mb-10 border-b border-slate-700/60 pb-5">
+                <div class="h-10 w-10 rounded-xl bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i></div>
+                <div><h1 class="text-xl font-black tracking-tight">SGO<span class="text-emerald-400"> Nexus</span></h1><p class="text-[11px] text-slate-400">Unidade Operacional</p></div>
+            </div>
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('dashboard')" class="tab-btn w-full flex items-center gap-4 text-left py-3 px-4 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800/70 group" id="btn-dashboard">
+                    <i class="fa-solid fa-chart-pie w-5 text-emerald-400/70 group-hover:text-emerald-400"></i> <span class="font-medium">Dashboard</span>
+                </button>
+                <button onclick="switchTab('funcionarios')" class="tab-btn w-full flex items-center gap-4 text-left py-3 px-4 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800/70 group" id="btn-funcionarios">
+                    <i class="fa-solid fa-users w-5 text-emerald-400/70 group-hover:text-emerald-400"></i> <span>Equipe & Cadastro</span>
+                </button>
+                <button onclick="switchTab('alocacao')" class="tab-btn w-full flex items-center gap-4 text-left py-3 px-4 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800/70 group" id="btn-alocacao">
+                    <i class="fa-solid fa-map-location-dot w-5 text-emerald-400/70 group-hover:text-emerald-400"></i> <span>Alocar Distritos</span>
+                </button>
+                <button onclick="switchTab('historico')" class="tab-btn w-full flex items-center gap-4 text-left py-3 px-4 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800/70 group" id="btn-historico">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-emerald-400/70 group-hover:text-emerald-400"></i> <span>Histórico de Alocações</span>
+                </button>
+                <button onclick="switchTab('carga')" class="tab-btn w-full flex items-center gap-4 text-left py-3 px-4 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-800/70 group" id="btn-carga">
+                    <i class="fa-solid fa-box-open w-5 text-emerald-400/70 group-hover:text-emerald-400"></i> <span>Movimento de Carga</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-5 text-xs text-slate-400 border-t border-slate-800/80 bg-slate-900/70 flex justify-between items-center">
+            <span><i class="fa-regular fa-calendar-alt mr-1"></i> Operação</span>
+            <span id="current-date" class="font-mono font-bold text-emerald-400 bg-slate-800/50 px-2 py-1 rounded-md">--/--/----</span>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="flex-1 p-4 md:p-8 mt-16 md:mt-0 overflow-x-auto">
+        
+        <!-- DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content space-y-7">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-emerald-100 pb-5">
+                <div><h2 class="text-3xl font-black tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Painel de Controle</h2><p class="text-slate-500 text-sm mt-1">Visão executiva de produtividade e alocação</p></div>
+                <span class="bg-white/80 backdrop-blur-sm text-slate-700 px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm border border-emerald-200"><i class="fa-regular fa-clock mr-1"></i> Tempo real</span>
             </div>
             
-            <div class="p-4 md:p-8">
-                <!-- DASHBOARD -->
-                <div id="dashboard" class="tab-content">
-                    <div class="mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Painel Operacional</h2>
-                        <p class="text-gray-500 text-sm">Visão geral de hoje</p>
-                    </div>
-                    <div class="cards-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-8 border-green-500">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500 text-sm">Presentes Hoje</span>
-                                <i class="fas fa-check-circle text-green-500 text-xl"></i>
-                            </div>
-                            <p class="text-3xl font-bold mt-2" id="presentesCount">0</p>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-8 border-red-400">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500 text-sm">Ausentes Hoje</span>
-                                <i class="fas fa-user-slash text-red-400 text-xl"></i>
-                            </div>
-                            <p class="text-3xl font-bold mt-2" id="ausentesCount">0</p>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-5 border-l-8 border-orange-400">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500 text-sm">Total de Ocorrências</span>
-                                <i class="fas fa-file-alt text-orange-400 text-xl"></i>
-                            </div>
-                            <p class="text-3xl font-bold mt-2" id="totalOcorrenciasCount">0</p>
-                        </div>
-                    </div>
-                    <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-5 rounded-2xl shadow-sm">
-                            <h3 class="font-semibold text-gray-700 mb-3 text-sm md:text-base"><i class="fas fa-chart-simple mr-2"></i>Distribuição de Ausências</h3>
-                            <canvas id="doughnutChart" width="400" height="300" style="max-height: 280px; width: 100%;"></canvas>
-                        </div>
-                        <div class="bg-white p-5 rounded-2xl shadow-sm">
-                            <h3 class="font-semibold text-gray-700 mb-3 text-sm md:text-base"><i class="fas fa-users mr-2"></i>Efetivo Presente por Função</h3>
-                            <canvas id="barChart" width="400" height="300" style="max-height: 280px; width: 100%;"></canvas>
-                        </div>
-                    </div>
-                </div>
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-simple text-emerald-500"></i> Balanço de Objetos Postais (Hoje)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover-lift relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-blue-500 rounded-l-2xl"></div><div class="flex justify-between items-start mb-4"><span class="text-sm font-black uppercase text-slate-500">Simples</span><i class="fa-solid fa-envelope text-blue-500 text-2xl bg-blue-50 p-2 rounded-xl"></i></div><div class="grid grid-cols-2 gap-3"><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Saiu</span><span id="dash-simples-saiu" class="stat-number block text-2xl font-black text-blue-600">0</span></div><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Resto</span><span id="dash-simples-resto" class="stat-number block text-2xl font-black text-slate-700">0</span></div></div></div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover-lift relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-amber-500 rounded-l-2xl"></div><div class="flex justify-between items-start mb-4"><span class="text-sm font-black uppercase text-slate-500">Encomendas</span><i class="fa-solid fa-cubes text-amber-500 text-2xl bg-amber-50 p-2 rounded-xl"></i></div><div class="grid grid-cols-2 gap-3"><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Saiu</span><span id="dash-encomendas-saiu" class="stat-number block text-2xl font-black text-amber-600">0</span></div><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Resto</span><span id="dash-encomendas-resto" class="stat-number block text-2xl font-black text-slate-700">0</span></div></div></div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover-lift relative overflow-hidden"><div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-2xl"></div><div class="flex justify-between items-start mb-4"><span class="text-sm font-black uppercase text-slate-500">Registrados</span><i class="fa-solid fa-box-archive text-emerald-500 text-2xl bg-emerald-50 p-2 rounded-xl"></i></div><div class="grid grid-cols-2 gap-3"><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Saiu</span><span id="dash-registrados-saiu" class="stat-number block text-2xl font-black text-emerald-600">0</span></div><div class="bg-slate-50 rounded-xl p-2 text-center"><span class="text-xs text-slate-400">Resto</span><span id="dash-registrados-resto" class="stat-number block text-2xl font-black text-slate-700">0</span></div></div></div>
+            </div>
 
-                <!-- CADASTRO -->
-                <div id="cadastro" class="tab-content">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 max-w-2xl mx-auto">
-                        <h2 class="text-xl font-bold text-gray-800 mb-2"><i class="fas fa-id-card text-blue-500 mr-2"></i>Cadastrar Funcionário</h2>
-                        <form id="formFuncionario" class="space-y-4">
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Matrícula *</label>
-                                <input type="text" id="matricula" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Nome Completo *</label>
-                                <input type="text" id="nomeFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Cargo/Função *</label>
-                                <select id="cargoFunc" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                                    <option value="">Selecione</option>
-                                    <option>Motorista</option>
-                                    <option>Motociclista</option>
-                                    <option>Ciclista</option>
-                                    <option>Interno</option>
-                                    <option>Pedestre</option>
-                                    <option>Gestão</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium text-sm">
-                                <i class="fas fa-save mr-2"></i>Salvar Funcionário
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- CHECKLIST PONTO -->
-                <div id="ponto" class="tab-content">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                            <div>
-                                <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-                                    <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
-                                    Checklist de Ponto
-                                </h2>
-                                <p class="text-gray-500 text-sm mt-1">
-                                    <i class="fas fa-calendar-alt mr-1"></i>
-                                    Data: <span id="dataAtualDisplay" class="font-semibold"></span>
-                                </p>
-                            </div>
-                            <div class="bg-blue-50 rounded-lg p-3 text-center w-full md:w-auto">
-                                <p class="text-xs text-gray-600">Progresso</p>
-                                <p class="text-xl md:text-2xl font-bold text-blue-600" id="progressoTexto">0/0</p>
-                                <div class="w-full md:w-48 h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                                    <div id="progressoBar" class="progress-bar h-full bg-blue-600 rounded-full" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                            <div class="bg-green-50 rounded-lg p-3 text-center">
-                                <i class="fas fa-check-circle text-green-600 text-lg md:text-xl"></i>
-                                <p class="text-xl md:text-2xl font-bold text-green-600" id="resumoPresentes">0</p>
-                                <p class="text-xs text-gray-600">Presentes</p>
-                            </div>
-                            <div class="bg-red-50 rounded-lg p-3 text-center">
-                                <i class="fas fa-times-circle text-red-600 text-lg md:text-xl"></i>
-                                <p class="text-xl md:text-2xl font-bold text-red-600" id="resumoAusentes">0</p>
-                                <p class="text-xs text-gray-600">Ausentes</p>
-                            </div>
-                            <div class="bg-yellow-50 rounded-lg p-3 text-center">
-                                <i class="fas fa-clock text-yellow-600 text-lg md:text-xl"></i>
-                                <p class="text-xl md:text-2xl font-bold text-yellow-600" id="resumoPendentes">0</p>
-                                <p class="text-xs text-gray-600">Pendentes</p>
-                            </div>
-                            <div class="bg-purple-50 rounded-lg p-3 text-center">
-                                <i class="fas fa-users text-purple-600 text-lg md:text-xl"></i>
-                                <p class="text-xl md:text-2xl font-bold text-purple-600" id="resumoTotal">0</p>
-                                <p class="text-xs text-gray-600">Total</p>
-                            </div>
-                        </div>
-                        <div id="checklistContainer" class="space-y-3"></div>
-                    </div>
-                </div>
-
-                <!-- REGISTRAR OCORRÊNCIA -->
-                <div id="ocorrencias" class="tab-content">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 max-w-2xl mx-auto">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-bell text-red-500 mr-2"></i>Registrar Ocorrência</h2>
-                        <form id="formOcorrencia" class="space-y-4">
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Abrangência *</label>
-                                <select id="abrangencia" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                                    <option value="Individual">Individual</option>
-                                    <option value="Unidade">Unidade</option>
-                                </select>
-                            </div>
-                            <div id="campoFuncOcorrencia">
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Funcionário *</label>
-                                <select id="selectFuncOcorrencia" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm"></select>
-                            </div>
-                            <div>
-                                <label class="block text-gray-700 font-medium mb-1 text-sm">Descrição *</label>
-                                <textarea id="descricaoOcorrencia" rows="4" required class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm" placeholder="Descreva o problema..."></textarea>
-                            </div>
-                            <button type="submit" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium text-sm">
-                                <i class="fas fa-save mr-2"></i>Salvar Ocorrência
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- CONSULTAR OCORRÊNCIAS (NOVA ABA) -->
-                <div id="consulta-ocorrencias" class="tab-content">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                            <div>
-                                <h2 class="text-xl md:text-2xl font-bold text-gray-800">
-                                    <i class="fas fa-search text-blue-500 mr-2"></i>
-                                    Consulta de Ocorrências
-                                </h2>
-                                <p class="text-gray-500 text-sm mt-1">Pesquise ocorrências por período, funcionário ou abrangência</p>
-                            </div>
-                            <button id="btnExportarOcorrencias" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm w-full md:w-auto">
-                                <i class="fas fa-download mr-2"></i>Exportar CSV
-                            </button>
-                        </div>
-
-                        <!-- Filtros -->
-                        <div class="filter-grid grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Funcionário</label>
-                                <select id="filtroOcorrenciaFuncionario" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                                    <option value="">Todos os funcionários</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
-                                <input type="date" id="filtroOcorrenciaDataInicio" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
-                                <input type="date" id="filtroOcorrenciaDataFim" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Abrangência</label>
-                                <select id="filtroOcorrenciaAbrangencia" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                                    <option value="">Todas</option>
-                                    <option value="Individual">Individual</option>
-                                    <option value="Unidade">Unidade</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Botões de ação -->
-                        <div class="flex flex-wrap gap-3 mb-6">
-                            <button id="btnFiltrarOcorrencias" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-search mr-2"></i>Filtrar
-                            </button>
-                            <button id="btnLimparFiltrosOcorrencias" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-eraser mr-2"></i>Limpar Filtros
-                            </button>
-                            <button id="btnSemanaAtualOcorrencias" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-calendar-week mr-2"></i>Semana Atual
-                            </button>
-                            <button id="btnMesAtualOcorrencias" class="border border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-calendar-alt mr-2"></i>Mês Atual
-                            </button>
-                        </div>
-
-                        <!-- Estatísticas -->
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-6">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <p class="text-sm text-gray-600">Total de Ocorrências</p>
-                                    <p class="text-2xl font-bold text-gray-800" id="totalOcorrenciasFiltro">0</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Individuais</p>
-                                    <p class="text-2xl font-bold text-blue-600" id="totalIndividuais">0</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Unidade</p>
-                                    <p class="text-2xl font-bold text-purple-600" id="totalUnidade">0</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Última Ocorrência</p>
-                                    <p class="text-lg font-bold text-gray-800" id="ultimaOcorrencia">-</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Lista de ocorrências em cards (mobile) e tabela (desktop) -->
-                        <div class="table-responsive hidden md:block">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Funcionário</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Abrangência</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabelaOcorrencias" class="bg-white divide-y divide-gray-200"></tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Cards para mobile -->
-                        <div id="cardsOcorrencias" class="space-y-3 md:hidden"></div>
-                        
-                        <!-- Paginação -->
-                        <div class="flex justify-between items-center mt-6">
-                            <p class="text-sm text-gray-500" id="infoPaginaOcorrencias"></p>
-                            <div class="flex gap-2">
-                                <button id="btnAnteriorOcorrencias" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Anterior</button>
-                                <span id="paginaAtualOcorrencias" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">1</span>
-                                <button id="btnProximoOcorrencias" class="px-3 py-1 border rounded-lg text-sm disabled:opacity-50" disabled>Próximo</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HISTÓRICO PONTO -->
-                <div id="historico" class="tab-content">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-history text-blue-500 mr-2"></i>Histórico de Ponto</h2>
-                        <div class="filter-grid grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                            <select id="filtroFuncionario" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                                <option value="">Todos os funcionários</option>
-                            </select>
-                            <input type="date" id="filtroDataInicio" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                            <input type="date" id="filtroDataFim" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                            <button id="btnFiltrar" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-search mr-2"></i>Filtrar
-                            </button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-3 md:px-4 py-2 text-left text-xs font-medium text-gray-500">Data</th>
-                                        <th class="px-3 md:px-4 py-2 text-left text-xs font-medium text-gray-500">Funcionário</th>
-                                        <th class="px-3 md:px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th>
-                                        <th class="px-3 md:px-4 py-2 text-left text-xs font-medium text-gray-500">Motivo</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabelaHistorico" class="divide-y divide-gray-200"></tbody>
-                            </table>
-                        </div>
-                    </div>
+            <!-- RESUMO: QUANTOS FUNCIONÁRIOS POR FUNÇÃO EM CADA SETOR -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <h3 class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2 mb-5"><i class="fa-solid fa-chart-pie text-emerald-500"></i> Distribuição de Efetivo por Função e Setor</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-100 text-slate-600"><tr><th class="p-3 text-left">Função</th><th class="p-3 text-left">Setor Postal (601-624)</th><th class="p-3 text-left">Setor Especial (301-334)</th><th class="p-3 text-left">Unidade Interna</th></tr></thead>
+                        <tbody id="resumo-setor-funcao" class="divide-y"></tbody>
+                    </table>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Modal para motivo da ausência -->
-    <div id="modalMotivo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4">Motivo da Ausência</h3>
-            <p class="text-gray-600 mb-4" id="modalFuncionarioNome"></p>
-            <select id="modalMotivoSelect" class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 text-sm">
-                <option value="AM">AM (Atestado Médico)</option>
-                <option value="LM">LM (Licença Médica)</option>
-                <option value="Serviço externo">Serviço externo</option>
-                <option value="Folga">Folga</option>
-                <option value="Férias">Férias</option>
-            </select>
-            <div class="flex gap-3">
-                <button id="modalConfirmar" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">Confirmar</button>
-                <button id="modalCancelar" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5"><h3 class="text-sm font-bold text-slate-500 uppercase flex items-center gap-2 mb-5"><i class="fa-solid fa-briefcase"></i> Efetivo Alocado em Roteiros</h3><div id="dash-efetivo-lista" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"><div class="p-5 bg-slate-50/80 border-b border-slate-100 flex justify-between items-center"><h3 class="font-bold text-slate-700"><i class="fa-regular fa-map mr-2 text-emerald-500"></i>Espelho Operacional da Equipe</h3></div><div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="bg-slate-100 text-slate-500 text-xs uppercase"><th class="p-4">Funcionário</th><th class="p-4">Função</th><th class="p-4">Setor</th><th class="p-4">Distrito</th></tr></thead><tbody id="dash-tabela-distribuicao"></tbody></table></div></div>
+        </div>
+
+        <!-- MÓDULO CADASTRO -->
+        <div id="tab-funcionarios" class="tab-content hidden space-y-6"><h2 class="text-2xl font-black text-slate-800 border-b border-emerald-200 pb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-600"></i> Cadastro Geral de Equipe</h2>
+            <form id="form-funcionario" class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end"><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1.5">Nome Completo</label><input type="text" id="func-nome" required class="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50"></div><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1.5">Matrícula</label><input type="text" id="func-matricula" required class="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50"></div><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1.5">Função</label><select id="func-funcao" class="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50"><option value="Motorista">Motorista</option><option value="Motociclista">Motociclista</option><option value="Ciclista">Ciclista</option><option value="Pedestre">Pedestre</option><option value="Interno">Interno</option><option value="Gestão">Gestão</option></select></div><button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"><i class="fa-solid fa-save"></i> Salvar</button></form>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden"><div class="p-4 bg-slate-50 border-b font-bold text-slate-700"><i class="fa-regular fa-clipboard mr-2"></i>Efetivo Cadastrado</div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-slate-100 text-slate-600 text-xs"><tr><th class="p-3">Matrícula</th><th class="p-3">Nome</th><th class="p-3">Função</th><th class="p-3 text-center">Ações</th></tr></thead><tbody id="lista-funcionarios-corpo"></tbody></table></div></div>
+        </div>
+
+        <!-- ALOCAÇÃO DE DISTRITOS -->
+        <div id="tab-alocacao" class="tab-content hidden space-y-6"><h2 class="text-2xl font-black text-slate-800 border-b border-emerald-200 pb-4"><i class="fa-solid fa-route text-emerald-600 mr-2"></i> Gerenciamento Fixo de Linhas</h2>
+            <form id="form-alocacao" class="bg-white p-6 rounded-2xl shadow-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end"><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Agente</label><select id="alocacao-func" required class="w-full border rounded-xl p-2.5 bg-gray-50"></select></div><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Setor Alvo</label><select id="alocacao-tipo" onchange="atualizarSeletorDistritos()" class="w-full border rounded-xl p-2.5"><option value="especial">Especial (301-334)</option><option value="postal">Postal (601-624)</option><option value="Nenhum">Nenhum (Unidade)</option></select></div><div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Distrito</label><select id="alocacao-distrito" class="w-full border rounded-xl p-2.5 bg-gray-50"></select></div><button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl transition flex items-center justify-center gap-2"><i class="fa-solid fa-location-dot"></i> Atualizar Roteiro</button></form>
+        </div>
+
+        <!-- HISTÓRICO DE ALOCAÇÕES -->
+        <div id="tab-historico" class="tab-content hidden space-y-6">
+            <h2 class="text-2xl font-black text-slate-800 border-b border-emerald-200 pb-4 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> Histórico de Mudanças de Distritos</h2>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Filtrar por Funcionário</label><select id="filtro-historico-func" class="w-full border rounded-xl p-2.5 bg-gray-50"><option value="">Todos os funcionários</option></select></div>
+                    <div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Filtrar por Setor</label><select id="filtro-historico-setor" class="w-full border rounded-xl p-2.5 bg-gray-50"><option value="">Todos</option><option value="postal">Postal (601-624)</option><option value="especial">Especial (301-334)</option><option value="Nenhum">Unidade Interna</option></select></div>
+                    <div class="flex items-end"><button id="btn-limpar-filtros" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 px-4 rounded-xl transition w-full"><i class="fa-regular fa-filter-circle-xmark mr-1"></i> Limpar Filtros</button></div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-3">Data/Hora</th><th class="p-3">Funcionário</th><th class="p-3">Função</th><th class="p-3">Setor Anterior</th><th class="p-3">Novo Setor</th><th class="p-3">Distrito Anterior</th><th class="p-3">Novo Distrito</th></tr></thead>
+                        <tbody id="historico-lista-tbody"><tr><td colspan="7" class="p-6 text-center text-slate-400">Carregando histórico...<div class="loading-skeleton h-4 w-32 mx-auto mt-2 rounded"></div></td></tr></tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+
+        <!-- MOVIMENTO DE CARGA -->
+        <div id="tab-carga" class="tab-content hidden space-y-6"><h2 class="text-2xl font-black text-slate-800 border-b border-emerald-200 pb-4"><i class="fa-solid fa-charging-station"></i> Movimento de Carga Diária</h2>
+            <form id="form-carga" class="bg-white p-6 rounded-2xl shadow-md space-y-6"><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div class="bg-blue-50/60 p-5 rounded-2xl border border-blue-100"><div class="flex items-center gap-2 text-blue-700 font-bold mb-3"><i class="fa-solid fa-envelope"></i> Objetos Simples</div><div><label class="text-xs font-semibold uppercase">Saiu</label><input type="number" id="carga-simples-saiu" min="0" class="w-full border rounded-xl p-2"></div><div class="mt-2"><label class="text-xs font-semibold uppercase">Resto</label><input type="number" id="carga-simples-resto" min="0" class="w-full border rounded-xl p-2"></div></div><div class="bg-amber-50/60 p-5 rounded-2xl border border-amber-100"><div class="flex items-center gap-2 text-amber-700 font-bold mb-3"><i class="fa-solid fa-cubes"></i> Encomendas</div><div><label class="text-xs font-semibold uppercase">Saiu</label><input type="number" id="carga-encomendas-saiu" min="0" class="w-full border rounded-xl p-2"></div><div class="mt-2"><label class="text-xs font-semibold uppercase">Resto</label><input type="number" id="carga-encomendas-resto" min="0" class="w-full border rounded-xl p-2"></div></div><div class="bg-emerald-50/60 p-5 rounded-2xl border border-emerald-100"><div class="flex items-center gap-2 text-emerald-700 font-bold mb-3"><i class="fa-solid fa-box-archive"></i> Registrados</div><div><label class="text-xs font-semibold uppercase">Saiu</label><input type="number" id="carga-registrados-saiu" min="0" class="w-full border rounded-xl p-2"></div><div class="mt-2"><label class="text-xs font-semibold uppercase">Resto</label><input type="number" id="carga-registrados-resto" min="0" class="w-full border rounded-xl p-2"></div></div></div><div class="flex justify-end"><button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Gravar Carga</button></div></form>
         </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getFirestore, collection, doc, setDoc, getDocs, query, where, orderBy } from "firebase/firestore";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAxdNT93FsZlW_w0CiuH2XTYYkCJfe-McU",
-            authDomain: "controle-de-pessoal-dab62.firebaseapp.com",
-            projectId: "controle-de-pessoal-dab62",
-            storageBucket: "controle-de-pessoal-dab62.firebasestorage.app",
-            messagingSenderId: "144385976152",
-            appId: "1:144385976152:web:3638be237a1187fef2e72d"
-        };
-
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, updateDoc, collection, getDocs, deleteDoc, addDoc, query, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyA9rmTKGWXzq-wEr3SImGLmKQyEjvpHyHw", authDomain: "controle-de-carga-e-pessoal.firebaseapp.com", projectId: "controle-de-carga-e-pessoal", storageBucket: "controle-de-carga-e-pessoal.firebasestorage.app", messagingSenderId: "208095482783", appId: "1:208095482783:web:3351b8b2f0a55271ed23aa" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const HOJE = new Date().toISOString().split('T')[0];
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR');
+        let cacheEquipe = [];
+
+        window.toggleMobileMenu = function() { const sidebar = document.getElementById('sidebar'); const icon = document.getElementById('menu-icon'); if(sidebar.classList.contains('-translate-x-full')){ sidebar.classList.remove('-translate-x-full'); icon.classList.replace('fa-bars','fa-xmark'); } else { sidebar.classList.add('-translate-x-full'); icon.classList.replace('fa-xmark','fa-bars'); } }
         
-        const funcionariosRef = collection(db, "funcionarios");
-        const pontosRef = collection(db, "pontos");
-        const ocorrenciasRef = collection(db, "ocorrencias");
-
-        let doughnutChart = null;
-        let barChart = null;
-        let funcionariosList = [];
-        let pontosHojeMap = new Map();
-        let funcionarioSelecionadoModal = null;
-        
-        // Variáveis para paginação de ocorrências
-        let ocorrenciasCache = [];
-        let paginaAtualOcorrencias = 1;
-        const itensPorPaginaOcorrencias = 10;
-
-        function showToast(message, type = "success") {
-            const toastDiv = document.createElement("div");
-            toastDiv.className = `toast-notify bg-${type === "success" ? "green" : "red"}-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`;
-            toastDiv.innerHTML = `<i class="fas fa-${type === "success" ? "check-circle" : "exclamation-triangle"}"></i><span class="text-sm">${message}</span>`;
-            document.body.appendChild(toastDiv);
-            setTimeout(() => toastDiv.remove(), 3500);
-        }
-
-        function getLocalDateStr() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        }
-
-        function formatarDataBR(dataISO) {
-            if(!dataISO) return '-';
-            const partes = dataISO.split('-');
-            return `${partes[2]}/${partes[1]}/${partes[0]}`;
-        }
-
-        // ==================== CHECKLIST PONTO ====================
-        async function carregarChecklist() {
-            const hoje = getLocalDateStr();
-            document.getElementById("dataAtualDisplay").innerHTML = formatarDataBR(hoje);
-            
-            const funcSnapshot = await getDocs(funcionariosRef);
-            funcionariosList = [];
-            funcSnapshot.forEach(doc => {
-                funcionariosList.push({ id: doc.id, ...doc.data() });
-            });
-            
-            const pontosQuery = query(pontosRef, where("data", "==", hoje));
-            const pontosSnapshot = await getDocs(pontosQuery);
-            pontosHojeMap.clear();
-            pontosSnapshot.forEach(doc => {
-                const ponto = doc.data();
-                pontosHojeMap.set(ponto.funcionarioId, ponto);
-            });
-            
-            renderizarChecklistResponsivo();
-            atualizarResumo();
+        window.switchTab = function(tabName) { 
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden')); 
+            document.querySelectorAll('.tab-btn').forEach(el => { el.classList.remove('tab-active', 'bg-slate-800/40', 'text-white'); el.classList.add('text-slate-300'); }); 
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden'); 
+            const activeBtn = document.getElementById(`btn-${tabName}`); 
+            if(activeBtn) activeBtn.classList.add('tab-active', 'bg-slate-800/40', 'text-white'); 
+            if(window.innerWidth < 768) toggleMobileMenu(); 
+            if(tabName === 'historico') carregarHistorico(); 
         }
         
-        function renderizarChecklistResponsivo() {
-            const container = document.getElementById("checklistContainer");
-            
-            if(funcionariosList.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-gray-500 bg-gray-50 rounded-xl"><i class="fas fa-user-slash fa-2x mb-2 block"></i>Nenhum funcionário cadastrado</div>`;
-                return;
-            }
-            
-            container.innerHTML = funcionariosList.map(func => {
-                const ponto = pontosHojeMap.get(func.id);
-                const status = ponto ? ponto.status : "Pendente";
-                const motivo = ponto?.motivo || "";
-                
-                let statusColor = "bg-gray-100 text-gray-600";
-                let statusIcon = "fa-clock";
-                if(status === "Presente") { statusColor = "bg-green-100 text-green-700"; statusIcon = "fa-check-circle"; }
-                else if(status === "Ausente") { statusColor = "bg-red-100 text-red-700"; statusIcon = "fa-times-circle"; }
-                
-                return `
-                    <div class="checklist-item bg-white border rounded-xl p-4 shadow-sm">
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                            <div class="flex-1">
-                                <div class="font-semibold text-gray-900 text-base">${func.nome}</div>
-                                <div class="text-xs text-gray-500 mt-1">Matrícula: ${func.id} | Cargo: ${func.cargo}</div>
-                                ${motivo ? `<div class="text-xs text-gray-400 mt-1">Motivo: ${motivo}</div>` : ''}
-                            </div>
-                            <div class="flex items-center justify-between sm:justify-end gap-3">
-                                <span class="status-badge inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusColor}">
-                                    <i class="fas ${statusIcon} text-xs"></i> ${status}
-                                </span>
-                                <div class="flex gap-2">
-                                    ${status !== "Presente" ? `
-                                        <button onclick="window.marcarPresenca('${func.id}', '${func.nome}', true)" 
-                                                class="btn-marcar bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium">
-                                            <i class="fas fa-check"></i> Presente
-                                        </button>
-                                    ` : ''}
-                                    ${status !== "Ausente" ? `
-                                        <button onclick="window.marcarPresenca('${func.id}', '${func.nome}', false)" 
-                                                class="btn-marcar bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium">
-                                            <i class="fas fa-times"></i> Ausente
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        window.atualizarSeletorDistritos = function() { 
+            const tipo = document.getElementById('alocacao-tipo').value; 
+            const seletor = document.getElementById('alocacao-distrito'); 
+            seletor.innerHTML = ''; 
+            if(tipo === 'especial') { seletor.disabled=false; for(let i=301;i<=334;i++) seletor.innerHTML+=`<option value="${i}">Distrito ${i}</option>`; } 
+            else if(tipo === 'postal') { seletor.disabled=false; for(let i=601;i<=624;i++) seletor.innerHTML+=`<option value="${i}">Distrito ${i}</option>`; } 
+            else { seletor.innerHTML='<option value="Interno">Não se aplica</option>'; seletor.disabled=true; } 
+        }
+
+        // FUNÇÃO CORRIGIDA: Registrar histórico com validação
+        async function registrarHistorico(matricula, nome, funcao, setorAntigo, setorNovo, distritoAntigo, distritoNovo) {
+            try {
+                // Evita registrar histórico duplicado se nada mudou
+                if (setorAntigo === setorNovo && distritoAntigo === distritoNovo) return;
+                await addDoc(collection(db, "historico_alocacoes"), { 
+                    matricula, nome, funcao, 
+                    setorAntigo: setorAntigo || 'Nenhum', 
+                    setorNovo: setorNovo || 'Nenhum', 
+                    distritoAntigo: distritoAntigo || 'Interno', 
+                    distritoNovo: distritoNovo || 'Interno', 
+                    dataHora: new Date().toISOString(), 
+                    timestamp: Date.now() 
+                });
+                console.log("Histórico registrado com sucesso!");
+            } catch(e){ console.warn("Erro ao salvar histórico:", e); }
         }
         
-        async function marcarPresenca(funcionarioId, funcionarioNome, isPresente) {
-            if(isPresente) {
-                await registrarPonto(funcionarioId, "Presente", null);
-            } else {
-                funcionarioSelecionadoModal = { id: funcionarioId, nome: funcionarioNome };
-                document.getElementById("modalFuncionarioNome").innerHTML = `<i class="fas fa-user mr-2"></i>${funcionarioNome}`;
-                document.getElementById("modalMotivo").classList.remove("hidden");
-            }
-        }
-        
-        async function registrarPonto(funcionarioId, status, motivo) {
-            const hoje = getLocalDateStr();
-            const docId = `${hoje}_${funcionarioId}`;
-            const pontoData = {
-                data: hoje,
-                funcionarioId: funcionarioId,
-                status: status,
-                timestamp: new Date()
-            };
-            if(motivo) pontoData.motivo = motivo;
+        // FUNÇÃO CORRIGIDA: Carregar histórico com tratamento de dados vazios
+        async function carregarHistorico() { 
+            const tbody = document.getElementById('historico-lista-tbody');
+            const funcFilter = document.getElementById('filtro-historico-func').value;
+            const setorFilter = document.getElementById('filtro-historico-setor').value;
+            
+            tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-pulse mr-2"></i>Carregando histórico...</td></tr>';
             
             try {
-                await setDoc(doc(db, "pontos", docId), pontoData);
-                showToast(`✅ Ponto registrado: ${status === "Presente" ? "Presente" : "Ausente"}`, "success");
-                await carregarChecklist();
-                await atualizarDashboard();
-            } catch(err) {
-                showToast("Erro ao registrar ponto: " + err.message, "error");
-            }
-        }
-        
-        function atualizarResumo() {
-            const total = funcionariosList.length;
-            const presentes = Array.from(pontosHojeMap.values()).filter(p => p.status === "Presente").length;
-            const ausentes = Array.from(pontosHojeMap.values()).filter(p => p.status === "Ausente").length;
-            const pendentes = total - presentes - ausentes;
-            const progresso = total > 0 ? ((presentes + ausentes) / total * 100) : 0;
-            
-            document.getElementById("resumoPresentes").innerText = presentes;
-            document.getElementById("resumoAusentes").innerText = ausentes;
-            document.getElementById("resumoPendentes").innerText = pendentes;
-            document.getElementById("resumoTotal").innerText = total;
-            document.getElementById("progressoTexto").innerText = `${presentes + ausentes}/${total}`;
-            document.getElementById("progressoBar").style.width = `${progresso}%`;
-        }
-        
-        // ==================== DASHBOARD ====================
-        async function atualizarDashboard() {
-            const hoje = getLocalDateStr();
-            const pontosQuery = query(pontosRef, where("data", "==", hoje));
-            const pontosSnap = await getDocs(pontosQuery);
-            let presentes = 0, ausentes = 0;
-            const ausenciasPorMotivo = { "AM":0, "LM":0, "Serviço externo":0, "Folga":0, "Férias":0 };
-            const pontosList = [];
-            
-            pontosSnap.forEach(doc => {
-                const p = doc.data();
-                pontosList.push(p);
-                if(p.status === "Presente") presentes++;
-                else if(p.status === "Ausente") {
-                    ausentes++;
-                    if(p.motivo && ausenciasPorMotivo.hasOwnProperty(p.motivo)) ausenciasPorMotivo[p.motivo]++;
-                }
-            });
-            
-            document.getElementById("presentesCount").innerText = presentes;
-            document.getElementById("ausentesCount").innerText = ausentes;
-            
-            const ocorrSnap = await getDocs(ocorrenciasRef);
-            document.getElementById("totalOcorrenciasCount").innerText = ocorrSnap.size;
-            
-            const ctxDoughnut = document.getElementById("doughnutChart").getContext("2d");
-            if(doughnutChart) doughnutChart.destroy();
-            doughnutChart = new Chart(ctxDoughnut, {
-                type: 'doughnut',
-                data: { labels: Object.keys(ausenciasPorMotivo), datasets: [{ data: Object.values(ausenciasPorMotivo), backgroundColor: ['#3b82f6','#ef4444','#f59e0b','#10b981','#8b5cf6'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: window.innerWidth < 768 ? 10 : 12 } } } } }
-            });
-            
-            const funcionariosSnap = await getDocs(funcionariosRef);
-            const funcMap = new Map();
-            funcionariosSnap.forEach(d => funcMap.set(d.id, d.data()));
-            const contagemFuncao = { "Motorista":0, "Motociclista":0, "Ciclista":0, "Interno":0, "Pedestre":0, "Gestão":0 };
-            for(const p of pontosList) {
-                if(p.status === "Presente") {
-                    const funcData = funcMap.get(p.funcionarioId);
-                    if(funcData && contagemFuncao.hasOwnProperty(funcData.cargo)) contagemFuncao[funcData.cargo]++;
-                }
-            }
-            
-            const ctxBar = document.getElementById("barChart").getContext("2d");
-            if(barChart) barChart.destroy();
-            barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: { labels: Object.keys(contagemFuncao), datasets: [{ label: 'Presentes por Função', data: Object.values(contagemFuncao), backgroundColor: '#3b82f6', borderRadius: 8 }] },
-                options: { responsive: true, maintainAspectRatio: true, scales: { y: { beginAtZero: true, precision: 0, ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } } }, x: { ticks: { font: { size: window.innerWidth < 768 ? 10 : 12 } } } } }
-            });
-        }
-        
-        // ==================== CONSULTAR OCORRÊNCIAS ====================
-        async function buscarOcorrencias() {
-            const funcionarioId = document.getElementById("filtroOcorrenciaFuncionario").value;
-            const dataInicio = document.getElementById("filtroOcorrenciaDataInicio").value;
-            const dataFim = document.getElementById("filtroOcorrenciaDataFim").value;
-            const abrangencia = document.getElementById("filtroOcorrenciaAbrangencia").value;
-            
-            const snapshot = await getDocs(ocorrenciasRef);
-            const funcionariosMap = new Map();
-            const funcSnapshot = await getDocs(funcionariosRef);
-            funcSnapshot.forEach(doc => funcionariosMap.set(doc.id, doc.data()));
-            
-            let ocorrencias = [];
-            snapshot.forEach(doc => {
-                const ocorr = doc.data();
-                let incluir = true;
+                const q = query(collection(db, "historico_alocacoes"), orderBy("timestamp", "desc"), limit(500));
+                const snapshot = await getDocs(q);
+                let items = []; 
+                snapshot.forEach(docSnap => items.push(docSnap.data()));
                 
-                if(funcionarioId && abrangencia === "Individual" && ocorr.funcionarioId !== funcionarioId) incluir = false;
-                if(dataInicio && ocorr.dataRegistro < dataInicio) incluir = false;
-                if(dataFim && ocorr.dataRegistro > dataFim) incluir = false;
-                if(abrangencia && ocorr.abrangencia !== abrangencia) incluir = false;
-                
-                if(incluir) {
-                    const funcionario = ocorr.funcionarioId === "UNIDADE" ? 
-                        { nome: "UNIDADE" } : 
-                        (funcionariosMap.get(ocorr.funcionarioId) || { nome: "Desconhecido" });
-                    
-                    ocorrencias.push({
-                        id: doc.id,
-                        data: ocorr.dataRegistro,
-                        funcionarioId: ocorr.funcionarioId,
-                        funcionarioNome: funcionario.nome,
-                        abrangencia: ocorr.abrangencia,
-                        descricao: ocorr.descricao
-                    });
+                if(items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400"><i class="fa-regular fa-folder-open mr-2"></i>Nenhum registro de histórico encontrado. Faça uma alocação para começar.</td></tr>';
+                    return;
                 }
-            });
-            
-            // Ordenar por data decrescente
-            ocorrencias.sort((a, b) => b.data.localeCompare(a.data));
-            ocorrenciasCache = ocorrencias;
-            paginaAtualOcorrencias = 1;
-            renderizarOcorrencias();
-            atualizarEstatisticasOcorrencias(ocorrencias);
-        }
-        
-        function renderizarOcorrencias() {
-            const inicio = (paginaAtualOcorrencias - 1) * itensPorPaginaOcorrencias;
-            const fim = inicio + itensPorPaginaOcorrencias;
-            const ocorrenciasPagina = ocorrenciasCache.slice(inicio, fim);
-            const totalPaginas = Math.ceil(ocorrenciasCache.length / itensPorPaginaOcorrencias);
-            
-            // Tabela desktop
-            const tbody = document.getElementById("tabelaOcorrencias");
-            if(ocorrenciasPagina.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Nenhuma ocorrência encontrada</td>' +
-                    '<td class="hidden"></td><td class="hidden"></td><td class="hidden"></td></tr>';
-                document.getElementById("cardsOcorrencias").innerHTML = `
-                    <div class="text-center py-8 text-gray-500 bg-gray-50 rounded-xl">
-                        <i class="fas fa-search fa-2x mb-2 block"></i>
-                        Nenhuma ocorrência encontrada
-                    </div>
-                `;
-            } else {
-                tbody.innerHTML = ocorrenciasPagina.map(occ => `
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">${formatarDataBR(occ.data)}</td>
-                        <td class="px-4 py-3 text-sm">${occ.funcionarioNome}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-1 rounded-full text-xs ${occ.abrangencia === 'Individual' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
-                                ${occ.abrangencia}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-sm max-w-md">${occ.descricao.substring(0, 100)}${occ.descricao.length > 100 ? '...' : ''}</td>
+                
+                let filtered = items.filter(item => {
+                    let matchFunc = !funcFilter || item.matricula === funcFilter;
+                    let matchSetor = !setorFilter || item.setorNovo === setorFilter;
+                    return matchFunc && matchSetor;
+                });
+                
+                if(filtered.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400"><i class="fa-regular fa-filter-circle-xmark mr-2"></i>Nenhum registro encontrado com os filtros selecionados.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = filtered.map(item => `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-3 text-xs text-slate-500 font-mono">${new Date(item.dataHora).toLocaleString('pt-BR')}</td>
+                        <td class="p-3 font-semibold text-slate-700">${item.nome || 'N/A'}</td>
+                        <td class="p-3 text-slate-600">${item.funcao || 'N/A'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs">${item.setorAntigo || 'Nenhum'}</span></td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">${item.setorNovo || 'Nenhum'}</span></td>
+                        <td class="p-3 font-mono text-xs text-slate-500">${item.distritoAntigo || 'Interno'}</td>
+                        <td class="p-3 font-mono text-xs font-bold text-emerald-600">${item.distritoNovo || 'Interno'}</td>
                     </tr>
                 `).join('');
-                
-                // Cards mobile
-                document.getElementById("cardsOcorrencias").innerHTML = ocorrenciasPagina.map(occ => `
-                    <div class="ocorrencia-card bg-white border rounded-xl p-4 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs text-gray-500"><i class="fas fa-calendar mr-1"></i>${formatarDataBR(occ.data)}</span>
-                            <span class="px-2 py-1 rounded-full text-xs ${occ.abrangencia === 'Individual' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">
-                                ${occ.abrangencia}
-                            </span>
-                        </div>
-                        <div class="font-semibold text-gray-900 text-sm mb-1">
-                            <i class="fas fa-user mr-1"></i>${occ.funcionarioNome}
-                        </div>
-                        <p class="text-gray-600 text-xs mt-2">${occ.descricao}</p>
-                    </div>
-                `).join('');
-            }
-            
-            // Atualizar paginação
-            document.getElementById("btnAnteriorOcorrencias").disabled = paginaAtualOcorrencias === 1;
-            document.getElementById("btnProximoOcorrencias").disabled = paginaAtualOcorrencias === totalPaginas;
-            document.getElementById("paginaAtualOcorrencias").innerText = paginaAtualOcorrencias;
-            document.getElementById("infoPaginaOcorrencias").innerHTML = `Mostrando ${inicio+1} a ${Math.min(fim, ocorrenciasCache.length)} de ${ocorrenciasCache.length} registros`;
-        }
-        
-        function atualizarEstatisticasOcorrencias(ocorrencias) {
-            const total = ocorrencias.length;
-            const individuais = ocorrencias.filter(o => o.abrangencia === "Individual").length;
-            const unidade = ocorrencias.filter(o => o.abrangencia === "Unidade").length;
-            const ultimaData = ocorrencias.length > 0 ? formatarDataBR(ocorrencias[0].data) : "-";
-            
-            document.getElementById("totalOcorrenciasFiltro").innerText = total;
-            document.getElementById("totalIndividuais").innerText = individuais;
-            document.getElementById("totalUnidade").innerText = unidade;
-            document.getElementById("ultimaOcorrencia").innerText = ultimaData;
-        }
-        
-        function limparFiltrosOcorrencias() {
-            document.getElementById("filtroOcorrenciaFuncionario").value = "";
-            document.getElementById("filtroOcorrenciaDataInicio").value = "";
-            document.getElementById("filtroOcorrenciaDataFim").value = "";
-            document.getElementById("filtroOcorrenciaAbrangencia").value = "";
-            buscarOcorrencias();
-        }
-        
-        function setSemanaAtualOcorrencias() {
-            const hoje = new Date();
-            const primeiroDia = new Date(hoje);
-            primeiroDia.setDate(hoje.getDate() - hoje.getDay());
-            const ultimoDia = new Date(primeiroDia);
-            ultimoDia.setDate(primeiroDia.getDate() + 6);
-            
-            document.getElementById("filtroOcorrenciaDataInicio").value = primeiroDia.toISOString().split('T')[0];
-            document.getElementById("filtroOcorrenciaDataFim").value = ultimoDia.toISOString().split('T')[0];
-            buscarOcorrencias();
-        }
-        
-        function setMesAtualOcorrencias() {
-            const hoje = new Date();
-            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-            const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-            
-            document.getElementById("filtroOcorrenciaDataInicio").value = primeiroDia.toISOString().split('T')[0];
-            document.getElementById("filtroOcorrenciaDataFim").value = ultimoDia.toISOString().split('T')[0];
-            buscarOcorrencias();
-        }
-        
-        function exportarOcorrenciasCSV() {
-            if(ocorrenciasCache.length === 0) {
-                showToast("Nenhum dado para exportar!", "error");
-                return;
-            }
-            
-            const headers = ["Data", "Funcionário", "Abrangência", "Descrição"];
-            const rows = ocorrenciasCache.map(occ => [
-                occ.data, occ.funcionarioNome, occ.abrangencia, `"${occ.descricao.replace(/"/g, '""')}"`
-            ]);
-            
-            const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
-            const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.href = url;
-            link.setAttribute("download", `ocorrencias_${getLocalDateStr()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            showToast("✅ Ocorrências exportadas com sucesso!");
-        }
-        
-        // ==================== CADASTRO E OUTROS ====================
-        document.getElementById("formFuncionario").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const matricula = document.getElementById("matricula").value.trim();
-            const nome = document.getElementById("nomeFunc").value.trim();
-            const cargo = document.getElementById("cargoFunc").value;
-            if(!matricula || !nome || !cargo) { showToast("Preencha todos os campos!", "error"); return; }
-            try {
-                await setDoc(doc(db, "funcionarios", matricula), { nome, cargo, matricula });
-                showToast(`✅ Funcionário ${nome} cadastrado!`);
-                document.getElementById("formFuncionario").reset();
-                await carregarChecklist();
-                await atualizarDashboard();
-                await carregarSelects();
-            } catch(err) { showToast("Erro: "+err.message, "error"); }
-        });
-        
-        document.getElementById("formOcorrencia").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const abrangencia = document.getElementById("abrangencia").value;
-            let funcionarioId = abrangencia === "Individual" ? document.getElementById("selectFuncOcorrencia").value : "UNIDADE";
-            if(abrangencia === "Individual" && !funcionarioId) { showToast("Selecione o funcionário!", "error"); return; }
-            const descricao = document.getElementById("descricaoOcorrencia").value.trim();
-            if(!descricao) { showToast("Descreva a ocorrência!", "error"); return; }
-            try {
-                await setDoc(doc(ocorrenciasRef), { 
-                    abrangencia, 
-                    funcionarioId, 
-                    descricao, 
-                    dataRegistro: getLocalDateStr(), 
-                    timestamp: new Date() 
-                });
-                showToast("✅ Ocorrência registrada!");
-                document.getElementById("formOcorrencia").reset();
-                await atualizarDashboard();
-                if(document.querySelector('.tab-content.active-tab').id === 'consulta-ocorrencias') {
-                    await buscarOcorrencias();
-                }
-            } catch(err) { showToast("Erro: "+err.message, "error"); }
-        });
-        
-        async function carregarSelects() {
-            const snapshot = await getDocs(funcionariosRef);
-            const funcionarios = [];
-            snapshot.forEach(doc => funcionarios.push({ id: doc.id, ...doc.data() }));
-            
-            const selects = ["selectFuncOcorrencia", "filtroFuncionario", "filtroOcorrenciaFuncionario"];
-            selects.forEach(id => {
-                const select = document.getElementById(id);
-                if(select) {
-                    select.innerHTML = '<option value="">Selecione</option>';
-                    funcionarios.forEach(f => {
-                        select.innerHTML += `<option value="${f.id}">${f.nome} (${f.id})</option>`;
-                    });
-                }
-            });
-        }
-        
-        // Histórico Ponto
-        async function buscarHistorico() {
-            const funcionarioId = document.getElementById("filtroFuncionario").value;
-            const dataInicio = document.getElementById("filtroDataInicio").value;
-            const dataFim = document.getElementById("filtroDataFim").value;
-            
-            const snapshot = await getDocs(query(pontosRef, orderBy("data", "desc")));
-            const funcionariosMap = new Map();
-            const funcSnapshot = await getDocs(funcionariosRef);
-            funcSnapshot.forEach(doc => funcionariosMap.set(doc.id, doc.data()));
-            
-            const registros = [];
-            snapshot.forEach(doc => {
-                const ponto = doc.data();
-                if(funcionarioId && ponto.funcionarioId !== funcionarioId) return;
-                if(dataInicio && ponto.data < dataInicio) return;
-                if(dataFim && ponto.data > dataFim) return;
-                
-                const funcionario = funcionariosMap.get(ponto.funcionarioId) || { nome: "Desconhecido" };
-                registros.push({ data: ponto.data, funcionario: funcionario.nome, status: ponto.status, motivo: ponto.motivo || "-" });
-            });
-            
-            const tbody = document.getElementById("tabelaHistorico");
-            if(registros.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500 text-sm">Nenhum registro encontrado</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = registros.map(r => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-3 md:px-4 py-2 text-sm">${formatarDataBR(r.data)}</td>
-                    <td class="px-3 md:px-4 py-2 text-sm">${r.funcionario}</td>
-                    <td class="px-3 md:px-4 py-2"><span class="px-2 py-1 rounded-full text-xs ${r.status === 'Presente' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${r.status}</span></td>
-                    <td class="px-3 md:px-4 py-2 text-sm">${r.motivo}</td>
-                </tr>
-            `).join('');
-        }
-        
-        // Navegação
-        let currentTab = 'dashboard';
-        
-        function initNavigation() {
-            const sidebarItems = document.querySelectorAll('#desktopNav .sidebar-item');
-            const mobileItems = document.querySelectorAll('#mobileNav .sidebar-item');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            function switchTab(tabId) {
-                currentTab = tabId;
-                tabContents.forEach(content => content.classList.remove('active-tab'));
-                const selectedContent = document.getElementById(tabId);
-                if(selectedContent) selectedContent.classList.add('active-tab');
-                
-                [sidebarItems, mobileItems].forEach(items => {
-                    items.forEach(item => {
-                        item.classList.remove('active');
-                        if(item.getAttribute('data-tab') === tabId) item.classList.add('active');
-                    });
-                });
-                
-                if(tabId === 'dashboard') atualizarDashboard();
-                if(tabId === 'ponto') carregarChecklist();
-                if(tabId === 'historico') buscarHistorico();
-                if(tabId === 'consulta-ocorrencias') buscarOcorrencias();
-                
-                if(window.innerWidth < 768) fecharMenuMobile();
-            }
-            
-            sidebarItems.forEach(item => {
-                const tabId = item.getAttribute('data-tab');
-                if(tabId) {
-                    item.addEventListener('click', () => switchTab(tabId));
-                }
-            });
-            
-            switchTab('dashboard');
-        }
-        
-        // Menu mobile
-        window.abrirMenuMobile = function() {
-            document.getElementById('sidebarMobile').classList.add('open');
-            document.getElementById('overlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-        
-        window.fecharMenuMobile = function() {
-            document.getElementById('sidebarMobile').classList.remove('open');
-            document.getElementById('overlay').classList.remove('active');
-            document.body.style.overflow = '';
-        };
-        
-        function cloneMenuToMobile() {
-            const desktopNav = document.getElementById('desktopNav');
-            const mobileNav = document.getElementById('mobileNav');
-            if(desktopNav && mobileNav) {
-                mobileNav.innerHTML = desktopNav.innerHTML;
-                const mobileItems = mobileNav.querySelectorAll('.sidebar-item');
-                mobileItems.forEach(item => {
-                    const tabId = item.getAttribute('data-tab');
-                    if(tabId) {
-                        item.addEventListener('click', () => {
-                            document.querySelector(`#desktopNav [data-tab="${tabId}"]`).click();
-                        });
-                    }
-                    // Preservar a funcionalidade dos links externos no mobile
-                    if(item.classList.contains('external-link')) {
-                        const originalOnclick = item.getAttribute('onclick');
-                        if(originalOnclick) {
-                            item.setAttribute('onclick', originalOnclick);
-                        }
-                    }
-                });
+            } catch(error) {
+                console.error("Erro ao carregar histórico:", error);
+                tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-500"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Erro ao carregar histórico. Tente novamente.</td></tr>';
             }
         }
         
-        // Eventos
-        window.marcarPresenca = marcarPresenca;
+        async function preencherFiltroHistorico() { 
+            const snapshot = await getDocs(collection(db, "funcionarios")); 
+            const select = document.getElementById('filtro-historico-func'); 
+            select.innerHTML = '<option value="">Todos os funcionários</option>'; 
+            snapshot.forEach(docSnap => { const data = docSnap.data(); select.innerHTML += `<option value="${data.matricula}">${data.nome} (${data.funcao})</option>`; }); 
+        }
+
+        async function sincronizarAplicativo() { await buscarEquipe(); await carregarCargaDoDia(); renderizarDashboard(); atualizarResumoSetorFuncao(); await preencherFiltroHistorico(); }
         
-        document.getElementById("abrangencia")?.addEventListener("change", (e) => {
-            const campo = document.getElementById("campoFuncOcorrencia");
-            campo.classList.toggle("hidden", e.target.value !== "Individual");
-        });
-        
-        document.getElementById("modalConfirmar")?.addEventListener("click", async () => {
-            const motivo = document.getElementById("modalMotivoSelect").value;
-            if(funcionarioSelecionadoModal) {
-                await registrarPonto(funcionarioSelecionadoModal.id, "Ausente", motivo);
-                document.getElementById("modalMotivo").classList.add("hidden");
-                funcionarioSelecionadoModal = null;
-            }
-        });
-        
-        document.getElementById("modalCancelar")?.addEventListener("click", () => {
-            document.getElementById("modalMotivo").classList.add("hidden");
-            funcionarioSelecionadoModal = null;
-        });
-        
-        document.getElementById("btnFiltrar")?.addEventListener("click", buscarHistorico);
-        
-        // Eventos ocorrências
-        document.getElementById("btnFiltrarOcorrencias")?.addEventListener("click", buscarOcorrencias);
-        document.getElementById("btnLimparFiltrosOcorrencias")?.addEventListener("click", limparFiltrosOcorrencias);
-        document.getElementById("btnSemanaAtualOcorrencias")?.addEventListener("click", setSemanaAtualOcorrencias);
-        document.getElementById("btnMesAtualOcorrencias")?.addEventListener("click", setMesAtualOcorrencias);
-        document.getElementById("btnAnteriorOcorrencias")?.addEventListener("click", () => {
-            if(paginaAtualOcorrencias > 1) { paginaAtualOcorrencias--; renderizarOcorrencias(); }
-        });
-        document.getElementById("btnProximoOcorrencias")?.addEventListener("click", () => {
-            const totalPaginas = Math.ceil(ocorrenciasCache.length / itensPorPaginaOcorrencias);
-            if(paginaAtualOcorrencias < totalPaginas) { paginaAtualOcorrencias++; renderizarOcorrencias(); }
-        });
-        document.getElementById("btnExportarOcorrencias")?.addEventListener("click", exportarOcorrenciasCSV);
-        
-        // Inicialização
-        async function init() {
-            await carregarSelects();
-            await carregarChecklist();
-            await atualizarDashboard();
-            initNavigation();
-            cloneMenuToMobile();
-            
-            const hoje = new Date();
-            const trintaDiasAtras = new Date(hoje);
-            trintaDiasAtras.setDate(hoje.getDate() - 30);
-            document.getElementById("filtroDataInicio").value = trintaDiasAtras.toISOString().split('T')[0];
-            document.getElementById("filtroDataFim").value = hoje.toISOString().split('T')[0];
-            document.getElementById("filtroOcorrenciaDataInicio").value = trintaDiasAtras.toISOString().split('T')[0];
-            document.getElementById("filtroOcorrenciaDataFim").value = hoje.toISOString().split('T')[0];
-            
-            window.addEventListener('resize', () => {
-                if(currentTab === 'dashboard') atualizarDashboard();
-            });
+        async function buscarEquipe() { 
+            const snapshot = await getDocs(collection(db, "funcionarios")); 
+            cacheEquipe = []; 
+            const seletor = document.getElementById('alocacao-func'); 
+            const tabelaCorpo = document.getElementById('lista-funcionarios-corpo'); 
+            seletor.innerHTML = '<option value="">Selecione agente...</option>'; 
+            tabelaCorpo.innerHTML = ''; 
+            snapshot.forEach((docSnap) => { 
+                const dados = docSnap.data(); 
+                cacheEquipe.push(dados); 
+                seletor.innerHTML += `<option value="${dados.matricula}">${dados.nome} [${dados.funcao}]</option>`; 
+                tabelaCorpo.innerHTML += `<tr><td data-label="Matrícula" class="p-3 font-mono text-xs">${dados.matricula}</td><td data-label="Nome" class="p-3 font-semibold">${dados.nome}</td><td data-label="Função" class="p-3"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs">${dados.funcao}</span></td><td data-label="Ações" class="p-3 text-center"><button onclick="deletarFuncionario('${dados.matricula}')" class="text-rose-500 hover:text-rose-700 transition"><i class="fa-regular fa-trash-can"></i></button></td></tr>`; 
+            }); 
         }
         
-        init();
+        async function carregarCargaDoDia() { 
+            const snapshot = await getDocs(collection(db, "carga_diaria")); 
+            let carga = null; 
+            snapshot.forEach(d=>{ if(d.id===HOJE) carga=d.data(); }); 
+            if(carga){ 
+                document.getElementById('dash-simples-saiu').innerText=carga.simples_saiu||0; 
+                document.getElementById('dash-simples-resto').innerText=carga.simples_resto||0; 
+                document.getElementById('dash-encomendas-saiu').innerText=carga.encomendas_saiu||0; 
+                document.getElementById('dash-encomendas-resto').innerText=carga.encomendas_resto||0; 
+                document.getElementById('dash-registrados-saiu').innerText=carga.registrados_saiu||0; 
+                document.getElementById('dash-registrados-resto').innerText=carga.registrados_resto||0; 
+            } 
+        }
+        
+        function atualizarResumoSetorFuncao() { 
+            const contagem = {}; 
+            cacheEquipe.forEach(func => { 
+                const funcao = func.funcao; 
+                const setor = func.tipoSetor || 'Nenhum'; 
+                if(!contagem[funcao]) contagem[funcao] = { postal:0, especial:0, interno:0 }; 
+                if(setor === 'postal') contagem[funcao].postal++; 
+                else if(setor === 'especial') contagem[funcao].especial++; 
+                else contagem[funcao].interno++; 
+            }); 
+            const tbody = document.getElementById('resumo-setor-funcao'); 
+            tbody.innerHTML = ''; 
+            for(const [funcao, vals] of Object.entries(contagem)){ 
+                tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-semibold">${funcao}</td><td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-bold">${vals.postal}</span></td><td class="p-3"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">${vals.especial}</span></td><td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-full text-xs">${vals.interno}</span></td></tr>`; 
+            } 
+        }
+        
+        function renderizarDashboard() { 
+            const tabela = document.getElementById('dash-tabela-distribuicao'); 
+            const containerEfetivo = document.getElementById('dash-efetivo-lista'); 
+            tabela.innerHTML = ''; 
+            const contadores = { Motorista:0, Motociclista:0, Ciclista:0, Pedestre:0, Interno:0, Gestão:0 }; 
+            cacheEquipe.forEach(func => { 
+                const temDistrito = func.tipoSetor && func.tipoSetor !== 'Nenhum'; 
+                const distritoExibido = temDistrito ? `Distrito ${func.distrito}` : 'Não alocado'; 
+                const setorExibido = temDistrito ? (func.tipoSetor === 'postal' ? 'Postal' : 'Especial') : 'Unidade Interna'; 
+                if(contadores[func.funcao] !== undefined) contadores[func.funcao]++; 
+                tabela.innerHTML += `<tr class="hover:bg-slate-50"><td class="p-3 font-semibold">${func.nome}</td><td class="p-3 text-slate-500">${func.funcao}</td><td class="p-3 font-medium capitalize ${temDistrito ? 'text-amber-600' : 'text-slate-400'}">${setorExibido}</td><td class="p-3 font-bold ${temDistrito ? 'text-emerald-600' : 'text-slate-400'}">${distritoExibido}</td></tr>`; 
+            }); 
+            containerEfetivo.innerHTML = ''; 
+            Object.entries(contadores).forEach(([funcao,total])=>{ containerEfetivo.innerHTML+=`<div class="bg-slate-50 p-3 rounded-xl text-center border border-slate-100"><div class="text-xs font-bold text-slate-400 uppercase">${funcao}</div><div class="text-2xl font-black text-slate-800">${total}</div></div>`; }); 
+            atualizarResumoSetorFuncao(); 
+        }
+        
+        document.getElementById('form-funcionario').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            const matricula = document.getElementById('func-matricula').value.trim(); 
+            const nome = document.getElementById('func-nome').value.trim(); 
+            const funcao = document.getElementById('func-funcao').value; 
+            await setDoc(doc(db, "funcionarios", matricula), { matricula, nome, funcao, tipoSetor: 'Nenhum', distrito: 'Interno' }); 
+            alert("✅ Agente inserido!"); 
+            document.getElementById('form-funcionario').reset(); 
+            await sincronizarAplicativo(); 
+        });
+        
+        document.getElementById('form-alocacao').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            const matricula = document.getElementById('alocacao-func').value; 
+            if(!matricula) return alert("Selecione um funcionário."); 
+            const novoSetor = document.getElementById('alocacao-tipo').value; 
+            const novoDistrito = document.getElementById('alocacao-distrito').value || 'Interno'; 
+            const funcRef = doc(db, "funcionarios", matricula); 
+            const funcSnap = await getDoc(funcRef); 
+            const dadosAntigos = funcSnap.data(); 
+            if(!dadosAntigos) return alert("Funcionário não encontrado!"); 
+            const setorAntigo = dadosAntigos?.tipoSetor || 'Nenhum'; 
+            const distritoAntigo = dadosAntigos?.distrito || 'Interno'; 
+            
+            await updateDoc(funcRef, { tipoSetor: novoSetor, distrito: novoDistrito }); 
+            await registrarHistorico(matricula, dadosAntigos.nome, dadosAntigos.funcao, setorAntigo, novoSetor, distritoAntigo, novoDistrito); 
+            alert("✅ Roteiro atualizado e histórico salvo!"); 
+            await sincronizarAplicativo(); 
+            switchTab('dashboard'); 
+        });
+        
+        document.getElementById('form-carga').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            const payload = { simples_saiu: Number(document.getElementById('carga-simples-saiu').value)||0, simples_resto: Number(document.getElementById('carga-simples-resto').value)||0, encomendas_saiu: Number(document.getElementById('carga-encomendas-saiu').value)||0, encomendas_resto: Number(document.getElementById('carga-encomendas-resto').value)||0, registrados_saiu: Number(document.getElementById('carga-registrados-saiu').value)||0, registrados_resto: Number(document.getElementById('carga-registrados-resto').value)||0, data: HOJE }; 
+            await setDoc(doc(db, "carga_diaria", HOJE), payload); 
+            alert("📦 Movimento consolidado!"); 
+            await sincronizarAplicativo(); 
+            switchTab('dashboard'); 
+        });
+        
+        window.deletarFuncionario = async function(matricula){ 
+            if(confirm("Remover este agente?")){ 
+                await deleteDoc(doc(db, "funcionarios", matricula)); 
+                await sincronizarAplicativo(); 
+            } 
+        }
+        
+        document.getElementById('btn-limpar-filtros').addEventListener('click', ()=>{ 
+            document.getElementById('filtro-historico-func').value = ''; 
+            document.getElementById('filtro-historico-setor').value = ''; 
+            carregarHistorico(); 
+        });
+        
+        document.getElementById('filtro-historico-func').addEventListener('change', ()=>carregarHistorico());
+        document.getElementById('filtro-historico-setor').addEventListener('change', ()=>carregarHistorico());
+        
+        window.addEventListener('DOMContentLoaded', async () => { 
+            atualizarSeletorDistritos(); 
+            await sincronizarAplicativo(); 
+            switchTab('dashboard'); 
+        });
     </script>
 </body>
 </html>
